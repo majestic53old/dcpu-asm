@@ -184,22 +184,17 @@ void lexer::number(void) {
 	typ = NUMERIC;
 
 	// parse number
-	if(buff.good()) {
-		buff.next(ch);
+	if(buff >> ch) {
 		if(ch == HEX_DIV) {
 			txt.clear();
 			typ = HEX_NUMERIC;
-			do {
-				if(ch != HEX_DIV)
-					txt += ch;
-				buff.next(ch);
-			} while(buff.good()
-					&& is_hex(ch));
+			while(buff >> ch
+					&& is_hex(ch))
+				txt += ch;
 		} else
 			do {
 				txt += ch;
-				buff.next(ch);
-			} while(buff.good()
+			} while(buff >> ch
 					&& isdigit(ch));
 	}
 }
@@ -214,8 +209,7 @@ void lexer::phrase(void) {
 	// parse phrase
 	do {
 		txt += ch;
-		buff.next(ch);
-	} while(buff.good()
+	} while(buff >> ch
 			&& isalpha(ch));
 
 	// determine type
@@ -278,13 +272,10 @@ void lexer::symbol(void) {
 			typ = OPEN_BRACE;
 			break;
 		case QUOTE:
-			do {
-				buff.next(ch);
-				if(ch != QUOTE)
-					txt += ch;
-			} while(buff.good()
-					&& ch != QUOTE);
-				typ = STRING;
+			while(buff.next(ch)
+					&& ch != QUOTE)
+				txt += ch;
+			typ = STRING;
 			break;
 		case SEP: txt += ch;
 			typ = SEPERATOR;
