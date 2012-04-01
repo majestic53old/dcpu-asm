@@ -1,3 +1,80 @@
 A simple assembler for use with Notch's dcpu.
 
 A description can be found at: http://notch.tumblr.com/post/20056289891/start-classified-transmission.
+
+This project is far from complete. At the moment, only the lexer is complete. 
+
+Here's a sample output of the lexer running through Notch's demo code:
+
+(LN: 3) [OPCODE] set
+(LN: 3) [IDENTIFIER] a
+(LN: 3) [SEPERATOR] ,
+(LN: 3) [HEX NUMERIC]  beef
+(LN: 4) [OPCODE] set
+(LN: 4) [OPEN BRACE] [
+(LN: 4) [HEX NUMERIC]  1000
+(LN: 4) [CLOSE BRACE] ]
+(LN: 4) [SEPERATOR] ,
+(LN: 4) [IDENTIFIER] a
+(LN: 5) [OPCODE] ifn
+(LN: 5) [IDENTIFIER] a
+(LN: 5) [SEPERATOR] ,
+(LN: 5) [OPEN BRACE] [
+(LN: 5) [HEX NUMERIC]  1000
+(LN: 5) [CLOSE BRACE] ]
+(LN: 6) [OPCODE] set
+(LN: 6) [IDENTIFIER] PC
+(LN: 6) [SEPERATOR] ,
+(LN: 6) [NAME] end
+(LN: 8) [OPCODE] set
+(LN: 8) [IDENTIFIER] i
+(LN: 8) [SEPERATOR] ,
+(LN: 8) [NUMERIC] 0 
+(LN: 9) [LABEL HEADER] :
+(LN: 9) [NAME] nextchar
+(LN: 9) [OPCODE] ife
+(LN: 9) [OPEN BRACE] [
+(LN: 9) [NAME] data
+(LN: 9) [ARITHMETIC] +
+(LN: 9) [IDENTIFIER] i
+(LN: 9) [CLOSE BRACE] ]
+(LN: 9) [SEPERATOR] ,
+(LN: 9) [NUMERIC] 0 
+(LN: 10) [OPCODE] set
+(LN: 10) [IDENTIFIER] PC
+(LN: 10) [SEPERATOR] ,
+(LN: 10) [NAME] end
+(LN: 11) [OPCODE] set
+(LN: 11) [OPEN BRACE] [
+(LN: 11) [HEX NUMERIC]  8000
+(LN: 11) [ARITHMETIC] +
+(LN: 11) [IDENTIFIER] i
+(LN: 11) [CLOSE BRACE] ]
+(LN: 11) [SEPERATOR] ,
+(LN: 11) [OPEN BRACE] [
+(LN: 11) [NAME] data
+(LN: 11) [ARITHMETIC] +
+(LN: 11) [IDENTIFIER] i
+(LN: 11) [CLOSE BRACE] ]
+(LN: 12) [OPCODE] add
+(LN: 12) [IDENTIFIER] i
+(LN: 12) [SEPERATOR] ,
+(LN: 12) [NUMERIC] 1 
+(LN: 13) [OPCODE] set
+(LN: 13) [IDENTIFIER] PC
+(LN: 13) [SEPERATOR] ,
+(LN: 13) [NAME] nextchar
+(LN: 15) [LABEL HEADER] :
+(LN: 15) [NAME] data
+(LN: 15) [OPCODE] dat
+(LN: 15) [STRING] Hello_world!
+(LN: 15) [SEPERATOR] ,
+(LN: 15) [NUMERIC] 0 
+(LN: 17) [LABEL HEADER] :
+(LN: 17) [NAME] end
+(LN: 17) [OPCODE] sub
+(LN: 17) [IDENTIFIER] PC
+(LN: 17) [SEPERATOR] ,
+(LN: 17) [NUMERIC] 1 
+(LN: 17) [END]
+DONE.
