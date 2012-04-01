@@ -7,13 +7,13 @@ This project is far from complete. At the moment, only the lexer is complete. Th
 Here's the simplified BNF the parser uses:
 
 stmt ::= <op> <oper> <seperator> <oper>
-		| <label_header> <name> <op> <oper> <seperator> <oper>
+		| : <name> <op> <oper> <seperator> <oper>
 
 op ::= set | add | sub | mul | div | mod | shl | shr | and | bor | xor | ife | ifn | ifg | ifb  | dat
 
 id ::= a | b | c | x | y | z | i | j | PC | SP | O | PUSH | POP | PEEK
 
-oper ::= <open_brace> <expr> <close_brace> | <id> | <name> | <numeric> | <hex_numeric> | <string>
+oper ::= [ <expr> ] | <id> | <name> | <numeric> | <hex_numeric> | <string>
 
 expr ::= <e1> <e0p>
 
