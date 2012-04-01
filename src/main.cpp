@@ -18,17 +18,25 @@
  */
 
 #include <iostream>
+#include <stdexcept>
 #include "lexer.hpp"
+#include "parser.hpp"
 #include "pb_buffer.hpp"
+#include "token.hpp"
 
 int main(int argc, char *argv[]) {
 
-	lexer lex("demo");
+	try {
 
-	while(lex.has_next()) {
-		lex.next();
-		std::cout << lex.to_string() << std::endl;
+		parser par("demo");
+		par.parse();
+
+	} catch(std::runtime_error &exc) {
+		std::cerr << "Exception: " << exc.what() << std::endl;
+		return 1;
 	}
+
+	//std::cout << par.to_string() << std::endl;
 
 	std::cout << "DONE." << std::endl;
 	return 0;

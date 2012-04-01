@@ -23,6 +23,7 @@
 #include <set>
 #include <string>
 #include "pb_buffer.hpp"
+#include "token.hpp"
 
 class lexer {
 private:
@@ -83,12 +84,6 @@ private:
 	void symbol(void);
 
 public:
-
-	/*
-	 * Supported token types
-	 */
-	enum TYPE { BEGIN, END, UNKNOWN, ARITH, CLOSE_BRACE, ID, LABEL_HEADER, NAME,
-		HEX_NUMERIC, NUMERIC, OP, OPEN_BRACE, SEPERATOR, STRING };
 
 	/*
 	 * Arithmetic symbols
@@ -197,14 +192,14 @@ public:
 	std::string to_string(void);
 
 	/*
+	 * Return current token
+	 */
+	token to_token(void);
+
+	/*
 	 * Lexer token type
 	 */
 	unsigned char type(void);
-
-	/*
-	 * Return a string representation of a token type
-	 */
-	static std::string type_to_string(unsigned char type);
 };
 
 #endif

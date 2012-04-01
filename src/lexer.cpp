@@ -43,7 +43,7 @@ const std::set<std::string> lexer::OP_SET(OP_SYMBOL, OP_SYMBOL + OP_COUNT);
 /*
  * Lexer constructor
  */
-lexer::lexer(void) : typ(BEGIN) {
+lexer::lexer(void) : typ(token::BEGIN) {
 	return;
 }
 
@@ -57,7 +57,7 @@ lexer::lexer(const lexer &other) : typ(other.typ), txt(other.txt), buff(other.bu
 /*
  * Lexer constructor
  */
-lexer::lexer(const std::string &path) : typ(BEGIN), buff(pb_buffer(path)) {
+lexer::lexer(const std::string &path) : typ(token::BEGIN), buff(pb_buffer(path)) {
 	return;
 }
 
@@ -124,7 +124,7 @@ size_t lexer::line(void) {
  * Return lexer token status
  */
 bool lexer::has_next(void) {
-	return typ != END;
+	return typ != token::END;
 }
 
 /*
@@ -165,7 +165,7 @@ void lexer::next(void) {
 	char ch = buff.peek();
 	if(!buff.good()) {
 		txt.clear();
-		typ = END;
+		typ = token::END;
 	} else if(isalpha(ch))
 		phrase();
 	else if(isdigit(ch))
@@ -181,21 +181,20 @@ void lexer::number(void) {
 	char ch = buff.peek();
 	txt.clear();
 	txt += ch;
-	typ = NUMERIC;
+	typ = token::NUMERIC;
 
 	// parse number
-	if(buff >> ch) {
+	if(buff.good()) {
+		while(buff >> ch
+				&& isdigit(ch))
+			txt += ch;
 		if(ch == HEX_DIV) {
 			txt.clear();
-			typ = HEX_NUMERIC;
+			typ = token::HEX_NUMERIC;
 			while(buff >> ch
 					&& is_hex(ch))
 				txt += ch;
-		} else
-			do {
-				txt += ch;
-			} while(buff >> ch
-					&& isdigit(ch));
+		}
 	}
 }
 
@@ -214,18 +213,18 @@ void lexer::phrase(void) {
 
 	// determine type
 	if(is_identifier())
-		typ = ID;
+		typ = token::ID;
 	else if(is_opcode())
-		typ = OP;
+		typ = token::OP;
 	else
-		typ = NAME;
+		typ = token::NAME;
 }
 
 /*
  * Reset lexer
  */
 void lexer::reset(void) {
-	typ = BEGIN;
+	typ = token::BEGIN;
 	txt.clear();
 	buff.reset();
 }
@@ -263,28 +262,28 @@ void lexer::symbol(void) {
 	// parse based off symbol
 	switch(ch) {
 		case C_BRACE: txt += ch;
-			typ = CLOSE_BRACE;
+			typ = token::CLOSE_BRACE;
 			break;
 		case L_HEADER: txt += ch;
-			typ = LABEL_HEADER;
+			typ = token::LABEL_HEADER;
 			break;
 		case O_BRACE: txt += ch;
-			typ = OPEN_BRACE;
+			typ = token::OPEN_BRACE;
 			break;
 		case QUOTE:
 			while(buff.next(ch)
 					&& ch != QUOTE)
 				txt += ch;
-			typ = STRING;
+			typ = token::STRING;
 			break;
 		case SEP: txt += ch;
-			typ = SEPERATOR;
+			typ = token::SEPERATOR;
 			break;
 		default: txt += ch;
 			if(is_arithmetic())
-				typ = ARITH;
+				typ = token::ARITH;
 			else
-				typ = UNKNOWN;
+				typ = token::UNKNOWN;
 			break;
 	}
 	buff.next(ch);
@@ -304,10 +303,17 @@ std::string lexer::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << "(LN: " << line() << ") " << type_to_string(typ);
+	ss << "(LN: " << line() << ") " << token::type_to_string(typ);
 	if(!txt.empty())
 		ss << " " << txt;
 	return ss.str();
+}
+
+/*
+ * Return current token
+ */
+token lexer::to_token(void) {
+	return token(txt, typ, line());
 }
 
 /*
@@ -315,44 +321,4 @@ std::string lexer::to_string(void) {
  */
 unsigned char lexer::type(void) {
 	return typ;
-}
-
-/*
- * Return a string representation of a token type
- */
-std::string lexer::type_to_string(unsigned char type) {
-	std::string out;
-
-	// form string representation
-	switch(type) {
-		case BEGIN: out = "[BEGIN]";
-			break;
-		case END: out = "[END]";
-			break;
-		case ARITH: out = "[ARITHMETIC]";
-			break;
-		case CLOSE_BRACE: out = "[CLOSE BRACE]";
-			break;
-		case ID: out = "[IDENTIFIER]";
-			break;
-		case LABEL_HEADER: out = "[LABEL HEADER]";
-			break;
-		case NAME: out = "[NAME]";
-			break;
-		case HEX_NUMERIC: out = "[HEX NUMERIC] ";
-			break;
-		case NUMERIC: out = "[NUMERIC]";
-			break;
-		case OP: out = "[OPCODE]";
-			break;
-		case OPEN_BRACE: out = "[OPEN BRACE]";
-			break;
-		case SEPERATOR: out = "[SEPERATOR]";
-			break;
-		case STRING: out = "[STRING]";
-			break;
-		default: out = "[UNKNOWN]";
-			break;
-	}
-	return out;
 }
