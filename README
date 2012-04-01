@@ -4,7 +4,7 @@ A description can be found at: http://notch.tumblr.com/post/20056289891/start-cl
 
 This project is far from complete. At the moment, only the lexer is complete. 
 
-Here's a sample output of the lexer running through Notch's demo code:
+Here's a sample output of the lexer running through Notch's demo code (line num start at 0):
 
 (LN: 3) [OPCODE] set
 (LN: 3) [IDENTIFIER] a
