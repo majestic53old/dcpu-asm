@@ -42,11 +42,6 @@ private:
 	unsigned char typ;
 
 	/*
-	 * Parent token
-	 */
-	token *par;
-
-	/*
 	 * Children tokens
 	 */
 	std::vector<token *> child;
@@ -62,7 +57,7 @@ public:
 	 * Supported token types
 	 */
 	enum TYPE { BEGIN, END, UNKNOWN, ARITH, CLOSE_BRACE, ID, LABEL_HEADER, NAME,
-		HEX_NUMERIC, NUMERIC, OP, OPEN_BRACE, SEPERATOR, STRING };
+		HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, STRING };
 
 	/*
 	 * Token constructor
@@ -125,11 +120,6 @@ public:
 	size_t line(void);
 
 	/*
-	 * Return parent token
-	 */
-	token *parent(void);
-
-	/*
 	 * Add child token to end
 	 */
 	void push_back(token *child);
@@ -138,11 +128,6 @@ public:
 	 * Set all child tokens
 	 */
 	void set_children(std::vector<token *> &child);
-
-	/*
-	 * Set parent token
-	 */
-	void set_parent(token *par);
 
 	/*
 	 * Set token text

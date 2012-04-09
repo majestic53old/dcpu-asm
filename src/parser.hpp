@@ -69,6 +69,11 @@ private:
 	void expr(void);
 
 	/*
+	 * Opcode
+	 */
+	void op(void);
+
+	/*
 	 * Operand
 	 */
 	void oper(void);

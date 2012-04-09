@@ -49,6 +49,11 @@ private:
 	bool is_arithmetic(void);
 
 	/*
+	 * Check if token is a basic opcode
+	 */
+	bool is_basic_opcode(void);
+
+	/*
 	 * Check if charcter is valid hex number
 	 */
 	bool is_hex(char ch);
@@ -59,9 +64,9 @@ private:
 	bool is_identifier(void);
 
 	/*
-	 * Check if token is an opcode
+	 * Check if a token is a non-basic opcode
 	 */
-	bool is_opcode(void);
+	bool is_non_basic_opcode(void);
 
 	/*
 	 * Parse a number from buffer
@@ -102,13 +107,21 @@ public:
 	static const std::set<std::string> ID_SET;
 
 	/*
-	 * Opcode symbols
+	 * Basic opcode symbols
 	 */
-	enum OPS { SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
-		AND, BOR, XOR, IFE, IFN, IFG, IFB, DAT, };
-	static const size_t OP_COUNT = 16;
-	static const std::string OP_SYMBOL[OP_COUNT];
-	static const std::set<std::string> OP_SET;
+	enum B_OP { SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
+		AND, BOR, XOR, IFE, IFN, IFG, IFB, };
+	static const size_t B_OP_COUNT = 15;
+	static const std::string B_OP_SYMBOL[B_OP_COUNT];
+	static const std::set<std::string> B_OP_SET;
+
+	/*
+	 * Non-Basic opcode symbols
+	 */
+	enum NB_OP { JSR, };
+	static const size_t NB_OP_COUNT = 1;
+	static const std::string NB_OP_SYMBOL[NB_OP_COUNT];
+	static const std::set<std::string> NB_OP_SET;
 
 	/*
 	 * Misc symbols

@@ -29,16 +29,22 @@ const std::set<std::string> lexer::ARITH_SET(ARITH_SYMBOL, ARITH_SYMBOL + ARITH_
 /*
  * Identifier symbols
  */
-const std::string lexer::ID_SYMBOL[ID_COUNT] = { "a", "b", "c", "x", "y", "z", "i", "j",
+const std::string lexer::ID_SYMBOL[ID_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J",
 	"POP", "PEEK", "PUSH", "SP", "PC", "O" };
 const std::set<std::string> lexer::ID_SET(ID_SYMBOL, ID_SYMBOL + ID_COUNT);
 
 /*
- * Opcode symbols
+ * Basic opcode symbols
  */
-const std::string lexer::OP_SYMBOL[OP_COUNT] = { "set", "add", "sub", "mul", "div", "mod",
-	"shl", "shr", "and", "bor", "xor", "ife", "ifn", "ifg", "ifb", "dat", };
-const std::set<std::string> lexer::OP_SET(OP_SYMBOL, OP_SYMBOL + OP_COUNT);
+const std::string lexer::B_OP_SYMBOL[B_OP_COUNT] = { "SET", "ADD", "SUB", "MUL", "DIV", "MOD",
+	"SHL", "SHR", "AND", "BOR", "XOR", "IFE", "IFN", "IFG", "IFB", };
+const std::set<std::string> lexer::B_OP_SET(B_OP_SYMBOL, B_OP_SYMBOL + B_OP_COUNT);
+
+/*
+ * Non-Basic opcode symbols
+ */
+const std::string lexer::NB_OP_SYMBOL[NB_OP_COUNT] = { "JSR", };
+const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_COUNT);
 
 /*
  * Lexer constructor
@@ -135,6 +141,13 @@ bool lexer::is_arithmetic(void) {
 }
 
 /*
+ * Check if token is an opcode
+ */
+bool lexer::is_basic_opcode(void) {
+	return B_OP_SET.find(txt) != B_OP_SET.end();
+}
+
+/*
  * Check if charcter is valid hex number
  */
 bool lexer::is_hex(char ch) {
@@ -151,10 +164,10 @@ bool lexer::is_identifier(void) {
 }
 
 /*
- * Check if token is an opcode
+ * Check if a token is a non-basic opcode
  */
-bool lexer::is_opcode(void) {
-	return OP_SET.find(txt) != OP_SET.end();
+bool lexer::is_non_basic_opcode(void) {
+	return NB_OP_SET.find(txt) != NB_OP_SET.end();
 }
 
 /*
@@ -214,8 +227,10 @@ void lexer::phrase(void) {
 	// determine type
 	if(is_identifier())
 		typ = token::ID;
-	else if(is_opcode())
-		typ = token::OP;
+	else if(is_basic_opcode())
+		typ = token::B_OP;
+	else if(is_non_basic_opcode())
+		typ = token::NB_OP;
 	else
 		typ = token::NAME;
 }

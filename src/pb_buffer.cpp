@@ -1,5 +1,5 @@
 /*
- * pb_buffer.hpp
+ * pb_buffer.cpp
  * Copyright (C) 2012 David Jolly
  * ----------------------
  *

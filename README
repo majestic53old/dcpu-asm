@@ -1,26 +1,37 @@
 A simple assembler for use with Notch's dcpu.
 
-A description can be found at: http://notch.tumblr.com/post/20056289891/start-classified-transmission.
+A description can be found at: http://0x10c.com/doc/dcpu-16.txt.
 
 This project is far from complete. At the moment, only the lexer is complete. The parser walks over the syntax to check for correctness, but doesn't create the syntax trees at the moment.
 
-Here's the simplified BNF the parser uses:
+TODO:
+	- Generate syntax trees while walking over input in parser
+	- Use generated trees to generate code
 
-stmt ::= <op> <oper> <seperator> <oper>
-		| : <name> <op> <oper> <seperator> <oper>
+KNOWN ISSUES:
+	- Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. However, in later revisions, strings have disappeared from his examples. I've left them in the parser for the time being.
 
-op ::= set | add | sub | mul | div | mod | shl | shr | and | bor | xor | ife | ifn | ifg | ifb  | dat
+SYNTAX:
+	- Here's the simplified BNF the parser uses.
 
-id ::= a | b | c | x | y | z | i | j | PC | SP | O | PUSH | POP | PEEK
+	stmt 	::= 	<op> | : <name> <op>
 
-oper ::= [ <expr> ] | <id> | <name> | <numeric> | <hex_numeric> | <string>
+	op 		::= 	<b_op> <oper> <seperator> <oper> | <nb_op> <oper>
 
-expr ::= <e1> <e0p>
+	b_op 	::= 	SET | ADD | SUB | MUL | DIV | MOD | SHL | SHR | AND | BOR | XOR | IFE | IFN | IFG | IFB
 
-e0p ::= + <e1> <e0p> | - <e1> <e0p> | empty
+	nb_op 	::= 	JSR
 
-e1 ::= <e2> <e1p>
+	id 		::= 	A | B | C | X | Y | Z | I | J | PC | SP | O | PUSH | POP | PEEK
 
-e1p ::= * <e2> < e1p> | / <e2> <e1p> | empty
+	oper 	::= 	[ <expr> ] | <id> | <name> | <numeric> | <hex_numeric> | <string>
 
-e2 ::= <id> | <name> | <numeric> | <hex_numeric>
+	expr 	::= 	<e1> <e0p>
+
+	e0p 	::= 	+ <e1> <e0p> | - <e1> <e0p> | empty
+
+	e1 		::= 	<e2> <e1p>
+
+	e1p 	::= 	* <e2> < e1p> | / <e2> <e1p> | empty
+
+	e2 		::= 	<id> | <name> | <numeric> | <hex_numeric>

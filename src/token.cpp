@@ -23,21 +23,21 @@
 /*
  * Token constructor
  */
-token::token(void) : ln(0), typ(UNKNOWN), par(NULL) {
+token::token(void) : ln(0), typ(UNKNOWN) {
 	return;
 }
 
 /*
  * Token constructor
  */
-token::token(const token &other) : ln(other.ln), txt(other.txt), typ(other.typ), par(other.par), child(other.child) {
+token::token(const token &other) : ln(other.ln), txt(other.txt), typ(other.typ), child(other.child) {
 	return;
 }
 
 /*
  * Token constructor
  */
-token::token(const std::string &txt, unsigned char typ, size_t ln) : ln(ln), txt(txt), typ(typ), par(NULL) {
+token::token(const std::string &txt, unsigned char typ, size_t ln) : ln(ln), txt(txt), typ(typ) {
 	return;
 }
 
@@ -61,7 +61,6 @@ token &token::operator=(const token &other) {
 	ln = other.ln;
 	txt = other.txt;
 	typ = other.typ;
-	par = other.par;
 	child = other.child;
 	return *this;
 }
@@ -79,7 +78,6 @@ bool token::operator==(const token &other) {
 	return ln == other.ln
 			&& txt == other.txt
 			&& typ == other.typ
-			&& par == other.par
 			&& child == other.child;
 }
 
@@ -115,7 +113,6 @@ void token::erase(size_t index) {
  * Insert child token at index
  */
 void token::insert(token *child, size_t index) {
-	child->set_parent(this);
 	this->child.insert(this->child.begin() + index, child);
 }
 
@@ -127,17 +124,9 @@ size_t token::line(void) {
 }
 
 /*
- * Return parent token
- */
-token *token::parent(void) {
-	return par;
-}
-
-/*
  * Add child token to end
  */
 void token::push_back(token *child) {
-	child->set_parent(this);
 	this->child.push_back(child);
 }
 
@@ -146,13 +135,6 @@ void token::push_back(token *child) {
  */
 void token::set_children(std::vector<token *> &child) {
 	this->child = child;
-}
-
-/*
- * Set parent token
- */
-void token::set_parent(token *par) {
-	this->par = par;
 }
 
 /*
@@ -255,7 +237,9 @@ std::string token::type_to_string(unsigned char type) {
 			break;
 		case token::NUMERIC: out = "[NUMERIC]";
 			break;
-		case token::OP: out = "[OPCODE]";
+		case token::B_OP: out = "[BASIC OPCODE]";
+			break;
+		case token::NB_OP: out = "[NON BASIC OPCODE]";
 			break;
 		case token::OPEN_BRACE: out = "[OPEN BRACE]";
 			break;

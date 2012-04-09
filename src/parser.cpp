@@ -162,6 +162,29 @@ lexer &parser::lex(void) {
 }
 
 /*
+ * Opcode
+ */
+void parser::op(void) {
+
+	// check for opcode
+	switch(le.type()) {
+		case token::B_OP:
+			le.next();
+			oper();
+			if(le.type() != token::SEPERATOR)
+				throw std::runtime_error(exception_message("Expecting ',' seperating operands"));
+			le.next();
+			oper();
+			break;
+		case token::NB_OP:
+			le.next();
+			oper();
+			break;
+		default: throw std::runtime_error(exception_message("Expecting opcode"));
+	}
+}
+
+/*
  * Operand
  */
 void parser::oper(void) {
@@ -216,16 +239,8 @@ void parser::stmt(void) {
 		if(le.type() != token::NAME)
 			throw std::runtime_error(exception_message("Expecting name after label header"));
 		le.next();
-	} else if(le.type() != token::OP)
-		throw std::runtime_error(exception_message("Expecting statement"));
-	if(le.type() != token::OP)
-		throw std::runtime_error(exception_message("Expecting opcode"));
-	le.next();
-	oper();
-	if(le.type() != token::SEPERATOR)
-		throw std::runtime_error(exception_message("Expecting ',' seperating operands"));
-	le.next();
-	oper();
+	}
+	op();
 }
 
 /*
