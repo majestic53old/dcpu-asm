@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "pb_buffer.hpp"

@@ -24,22 +24,10 @@
 #include <string>
 #include <vector>
 #include "lexer.hpp"
-
-/*
- * Word type
- */
-typedef unsigned short word;
+#include "types.hpp"
 
 class parser {
 private:
-
-	/*
-	 * Supported Opcode Types
-	 */
-	enum OP_TYPE {
-		BASIC_OP,
-		NON_BASIC_OP,
-	};
 
 	/*
 	 * Lexer
@@ -64,17 +52,12 @@ private:
 	/*
 	 * Return a string representation of an exception
 	 */
-	std::string exception_message(const std::string &message);
+	static std::string exception_message(lexer &lex, const std::string &message);
 
 	/*
 	 * Expression
 	 */
 	void expr(void);
-
-	/*
-	 * Determine an instruction length based off its type and operands
-	 */
-	size_t instruction_length(word op_type, word a, word b);
 
 	/*
 	 * Number
@@ -142,6 +125,11 @@ public:
 	 * Return parser generated code
 	 */
 	std::vector<word> &generated_code(void);
+
+	/*
+	 * Determine an instructions word length based off its type and operands
+	 */
+	static size_t instruction_length(word op_type, word a_type, word b_type);
 
 	/*
 	 * Return parser label list

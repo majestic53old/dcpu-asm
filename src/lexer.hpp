@@ -23,6 +23,7 @@
 #include <set>
 #include <string>
 #include "pb_buffer.hpp"
+#include "types.hpp"
 
 
 class lexer {
@@ -91,41 +92,26 @@ private:
 public:
 
 	/*
-	 * Supported token types
-	 */
-	enum TYPE { BEGIN, END, UNKNOWN, ADDITION, CLOSE_BRACE, REGISTER, LABEL_HEADER,
-		NAME, HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, ST_OPER, };
-
-	/*
 	 * Basic opcode symbols
 	 */
-	enum B_OP { SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
-		AND, BOR, XOR, IFE, IFN, IFG, IFB, };
-	static const size_t B_OP_COUNT = 15;
 	static const std::string B_OP_SYMBOL[B_OP_COUNT];
 	static const std::set<std::string> B_OP_SET;
 
 	/*
 	 * Non-Basic opcode symbols
 	 */
-	enum NB_OP { JSR, };
-	static const size_t NB_OP_COUNT = 1;
 	static const std::string NB_OP_SYMBOL[NB_OP_COUNT];
 	static const std::set<std::string> NB_OP_SET;
 
 	/*
 	 * Register symbols
 	 */
-	enum REGS { A, B, C, X, Y, Z, I, J, SP, PC, O, };
-	static const size_t REG_COUNT = 11;
 	static const std::string REG_SYMBOL[REG_COUNT];
 	static const std::set<std::string> REG_SET;
 
 	/*
 	 * Stack operation symbols
 	 */
-	enum ST_OPERS { POP, PEEK, PUSH, };
-	static const size_t ST_OPER_COUNT = 3;
 	static const std::string ST_OPER_SYMBOL[ST_OPER_COUNT];
 	static const std::set<std::string> ST_OPER_SET;
 

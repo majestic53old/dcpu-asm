@@ -94,11 +94,11 @@ bool parser::operator!=(const parser &other) {
 /*
  * Return a string representation of an exception
  */
-std::string parser::exception_message(const std::string &message) {
+std::string parser::exception_message(lexer &lex, const std::string &message) {
 	std::stringstream ss;
 
 	// form exception message
-	ss << "line: " << (le.line() + 1) << ": " << message;
+	ss << "line: " << (lex.line() + 1) << ": " << message;
 	return ss.str();
 }
 
@@ -106,19 +106,19 @@ std::string parser::exception_message(const std::string &message) {
  * Expression
  */
 void parser::expr(void) {
-	if(le.type() == lexer::REGISTER)
+	if(le.type() == REGISTER)
 		le.next();
-	else if(le.type() == lexer::NUMERIC
-			|| le.type() == lexer::HEX_NUMERIC) {
+	else if(le.type() == NUMERIC
+			|| le.type() == HEX_NUMERIC) {
 		le.next();
-		if(le.type() == lexer::ADDITION) {
+		if(le.type() == ADDITION) {
 			le.next();
-			if(le.type() != lexer::REGISTER)
-				throw std::runtime_error(exception_message("Expecting register after '+' addition"));
+			if(le.type() != REGISTER)
+				throw std::runtime_error(exception_message(le, "Expecting register after '+' addition"));
 			le.next();
 		}
 	} else
-		throw std::runtime_error(exception_message("Invalid expression"));
+		throw std::runtime_error(exception_message(le, "Invalid expression"));
 }
 
 /*
@@ -129,22 +129,28 @@ std::vector<word> &parser::generated_code(void) {
 }
 
 /*
- * Determine an instruction length based off its type and operands
+ * Determine an instructions word length based off its type and operands
  */
-size_t parser::instruction_length(word op_type, word a, word b) {
-	size_t offset = 0;
+size_t parser::instruction_length(word op_type, word a_type, word b_type) {
+	size_t offset = 1;
 
-	// determine based off opcode type
 	switch(op_type) {
+
+		// basic opcode
 		case BASIC_OP:
-
-			// TODO
-
+			offset += (((a_type >= L_OFF) && (a_type <= H_OFF))
+							|| a_type == ADR_OFF
+							|| a_type == LIT_OFF)
+					+ (((b_type >= L_OFF) && (b_type <= H_OFF))
+							|| b_type == 0x1E
+							|| b_type == 0x1F);
 			break;
+
+		// non-basic opcode (disregard b_type)
 		case NON_BASIC_OP:
-
-			// TODO
-
+			offset += (((a_type >= L_OFF) && (a_type <= H_OFF))
+							|| a_type == ADR_OFF
+							|| a_type == LIT_OFF);
 			break;
 	}
 	return offset;
@@ -168,9 +174,9 @@ lexer &parser::lex(void) {
  * Number
  */
 void parser::number(void) {
-	if(le.type() != lexer::NUMERIC
-			&& le.type() != lexer::HEX_NUMERIC)
-		throw std::runtime_error(exception_message("Expecting numeric value"));
+	if(le.type() != NUMERIC
+			&& le.type() != HEX_NUMERIC)
+		throw std::runtime_error(exception_message(le, "Expecting numeric value"));
 	le.next();
 }
 
@@ -181,19 +187,19 @@ void parser::op(void) {
 
 	// check for opcode
 	switch(le.type()) {
-		case lexer::B_OP:
+		case B_OP:
 			le.next();
 			oper();
-			if(le.type() != lexer::SEPERATOR)
-				throw std::runtime_error(exception_message("Expecting ',' seperating operands"));
-			le.next();
-			oper();
-			break;
-		case lexer::NB_OP:
+			if(le.type() != SEPERATOR)
+				throw std::runtime_error(exception_message(le, "Expecting ',' seperating operands"));
 			le.next();
 			oper();
 			break;
-		default: throw std::runtime_error(exception_message("Expecting opcode"));
+		case NB_OP:
+			le.next();
+			oper();
+			break;
+		default: throw std::runtime_error(exception_message(le, "Expecting opcode"));
 	}
 }
 
@@ -201,11 +207,11 @@ void parser::op(void) {
  * Operand
  */
 void parser::oper(void) {
-	if(le.type() == lexer::OPEN_BRACE) {
+	if(le.type() == OPEN_BRACE) {
 		le.next();
 		expr();
-		if(le.type() != lexer::CLOSE_BRACE)
-			throw std::runtime_error(exception_message("Expecting closing brace ']' before end of operand"));
+		if(le.type() != CLOSE_BRACE)
+			throw std::runtime_error(exception_message(le, "Expecting closing brace ']' before end of operand"));
 		le.next();
 	} else
 		term();
@@ -245,10 +251,10 @@ size_t parser::size(void) {
 void parser::stmt(void) {
 
 	// attempt to parse statement
-	if(le.type() == lexer::LABEL_HEADER) {
+	if(le.type() == LABEL_HEADER) {
 		le.next();
-		if(le.type() != lexer::NAME)
-			throw std::runtime_error(exception_message("Expecting name after label header"));
+		if(le.type() != NAME)
+			throw std::runtime_error(exception_message(le, "Expecting name after label header"));
 		le.next();
 	}
 	op();
@@ -258,12 +264,12 @@ void parser::stmt(void) {
  * Terminal
  */
 void parser::term(void) {
-	if(le.type() != lexer::NAME
-			&& le.type() != lexer::NUMERIC
-			&& le.type() != lexer::HEX_NUMERIC
-			&& le.type() != lexer::REGISTER
-			&& le.type() != lexer::ST_OPER)
-		throw std::runtime_error(exception_message("Invalid operand"));
+	if(le.type() != NAME
+			&& le.type() != NUMERIC
+			&& le.type() != HEX_NUMERIC
+			&& le.type() != REGISTER
+			&& le.type() != ST_OPER)
+		throw std::runtime_error(exception_message(le, "Invalid operand"));
 	le.next();
 }
 
@@ -279,8 +285,8 @@ bool parser::to_file(const std::string &path) {
 
 	// write each word to file
 	for(size_t i = 0; i < code.size(); ++i) {
-		file << (unsigned char) (code.at(i) >> 8);
-		file << (unsigned char) code.at(i);
+		file << (halfword) (code.at(i) >> 8);
+		file << (halfword) code.at(i);
 	}
 	return true;
 }
