@@ -23,7 +23,6 @@
 #include <string>
 #include <vector>
 #include "lexer.hpp"
-#include "token.hpp"
 
 class parser {
 private:
@@ -32,31 +31,6 @@ private:
 	 * Lexer
 	 */
 	lexer le;
-
-	/*
-	 * Syntax tree
-	 */
-	std::vector<token *> syn_tree;
-
-	/*
-	 * Expression
-	 */
-	void e0p(void);
-
-	/*
-	 * Expression
-	 */
-	void e1(void);
-
-	/*
-	 * Expression
-	 */
-	void e1p(void);
-
-	/*
-	 * Expression
-	 */
-	void e2(void);
 
 	/*
 	 * Return a string representation of an exception
@@ -82,6 +56,11 @@ private:
 	 * Statement
 	 */
 	void stmt(void);
+
+	/*
+	 * Terminal
+	 */
+	void term(void);
 
 public:
 
@@ -134,16 +113,6 @@ public:
 	 * Reset parser
 	 */
 	void reset(void);
-
-	/*
-	 * Syntax tree size
-	 */
-	size_t size(void);
-
-	/*
-	 * Return syntax tree
-	 */
-	std::vector<token *> &syntax_tree(void);
 
 	/*
 	 * Return a string representation of parser

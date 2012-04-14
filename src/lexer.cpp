@@ -21,12 +21,6 @@
 #include "lexer.hpp"
 
 /*
- * Arithmetic symbols
- */
-const std::string lexer::ARITH_SYMBOL[ARITH_COUNT] = { "+", "-", "*", "/", };
-const std::set<std::string> lexer::ARITH_SET(ARITH_SYMBOL, ARITH_SYMBOL + ARITH_COUNT);
-
-/*
  * Identifier symbols
  */
 const std::string lexer::ID_SYMBOL[ID_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J",
@@ -49,7 +43,7 @@ const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_
 /*
  * Lexer constructor
  */
-lexer::lexer(void) : typ(token::BEGIN) {
+lexer::lexer(void) : typ(BEGIN) {
 	return;
 }
 
@@ -63,7 +57,7 @@ lexer::lexer(const lexer &other) : typ(other.typ), txt(other.txt), buff(other.bu
 /*
  * Lexer constructor
  */
-lexer::lexer(const std::string &path) : typ(token::BEGIN), buff(pb_buffer(path)) {
+lexer::lexer(const std::string &path) : typ(BEGIN), buff(pb_buffer(path)) {
 	return;
 }
 
@@ -130,14 +124,7 @@ size_t lexer::line(void) {
  * Return lexer token status
  */
 bool lexer::has_next(void) {
-	return typ != token::END;
-}
-
-/*
- * Check if token is arithmetic
- */
-bool lexer::is_arithmetic(void) {
-	return ARITH_SET.find(txt) != ARITH_SET.end();
+	return typ != END;
 }
 
 /*
@@ -178,7 +165,7 @@ void lexer::next(void) {
 	char ch = buff.peek();
 	if(!buff.good()) {
 		txt.clear();
-		typ = token::END;
+		typ = END;
 	} else if(isalpha(ch))
 		phrase();
 	else if(isdigit(ch))
@@ -194,7 +181,7 @@ void lexer::number(void) {
 	char ch = buff.peek();
 	txt.clear();
 	txt += ch;
-	typ = token::NUMERIC;
+	typ = NUMERIC;
 
 	// parse number
 	if(buff.good()) {
@@ -203,7 +190,7 @@ void lexer::number(void) {
 			txt += ch;
 		if(ch == HEX_DIV) {
 			txt.clear();
-			typ = token::HEX_NUMERIC;
+			typ = HEX_NUMERIC;
 			while(buff >> ch
 					&& is_hex(ch))
 				txt += ch;
@@ -226,20 +213,20 @@ void lexer::phrase(void) {
 
 	// determine type
 	if(is_identifier())
-		typ = token::ID;
+		typ = ID;
 	else if(is_basic_opcode())
-		typ = token::B_OP;
+		typ = B_OP;
 	else if(is_non_basic_opcode())
-		typ = token::NB_OP;
+		typ = NB_OP;
 	else
-		typ = token::NAME;
+		typ = NAME;
 }
 
 /*
  * Reset lexer
  */
 void lexer::reset(void) {
-	typ = token::BEGIN;
+	typ = BEGIN;
 	txt.clear();
 	buff.reset();
 }
@@ -276,29 +263,23 @@ void lexer::symbol(void) {
 
 	// parse based off symbol
 	switch(ch) {
+		case ADD_CH: txt += ch;
+			typ = ADDITION;
+			break;
 		case C_BRACE: txt += ch;
-			typ = token::CLOSE_BRACE;
+			typ = CLOSE_BRACE;
 			break;
 		case L_HEADER: txt += ch;
-			typ = token::LABEL_HEADER;
+			typ = LABEL_HEADER;
 			break;
 		case O_BRACE: txt += ch;
-			typ = token::OPEN_BRACE;
-			break;
-		case QUOTE:
-			while(buff.next(ch)
-					&& ch != QUOTE)
-				txt += ch;
-			typ = token::STRING;
+			typ = OPEN_BRACE;
 			break;
 		case SEP: txt += ch;
-			typ = token::SEPERATOR;
+			typ = SEPERATOR;
 			break;
 		default: txt += ch;
-			if(is_arithmetic())
-				typ = token::ARITH;
-			else
-				typ = token::UNKNOWN;
+				typ = UNKNOWN;
 			break;
 	}
 	buff.next(ch);
@@ -318,17 +299,10 @@ std::string lexer::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << "(LN: " << line() << ") " << token::type_to_string(typ);
+	ss << "(LN: " << line() << ") " << type_to_string(typ);
 	if(!txt.empty())
 		ss << " " << txt;
 	return ss.str();
-}
-
-/*
- * Return current token
- */
-token lexer::to_token(void) {
-	return token(txt, typ, line());
 }
 
 /*
@@ -336,4 +310,44 @@ token lexer::to_token(void) {
  */
 unsigned char lexer::type(void) {
 	return typ;
+}
+
+/*
+ * Return a string representation of a token type
+ */
+std::string lexer::type_to_string(unsigned char type) {
+	std::string out;
+
+	// form string representation
+	switch(type) {
+		case BEGIN: out = "[BEGIN]";
+			break;
+		case END: out = "[END]";
+			break;
+		case ADDITION: out = "[ADDITION]";
+			break;
+		case CLOSE_BRACE: out = "[CLOSE BRACE]";
+			break;
+		case ID: out = "[IDENTIFIER]";
+			break;
+		case LABEL_HEADER: out = "[LABEL HEADER]";
+			break;
+		case NAME: out = "[NAME]";
+			break;
+		case HEX_NUMERIC: out = "[HEX NUMERIC]";
+			break;
+		case NUMERIC: out = "[NUMERIC]";
+			break;
+		case B_OP: out = "[BASIC OPCODE]";
+			break;
+		case NB_OP: out = "[NON BASIC OPCODE]";
+			break;
+		case OPEN_BRACE: out = "[OPEN BRACE]";
+			break;
+		case SEPERATOR: out = "[SEPERATOR]";
+			break;
+		default: out = "[UNKNOWN]";
+			break;
+	}
+	return out;
 }

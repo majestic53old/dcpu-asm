@@ -24,21 +24,21 @@
 /*
  * Parser constructor
  */
-parser::parser(void) : syn_tree(NULL) {
+parser::parser(void) {
 	return;
 }
 
 /*
  * Parser constructor
  */
-parser::parser(const parser &other) : le(other.le), syn_tree(other.syn_tree) {
+parser::parser(const parser &other) : le(other.le) {
 	return;
 }
 
 /*
  * Parser constructor
  */
-parser::parser(const std::string &path) : le(lexer(path)), syn_tree(NULL) {
+parser::parser(const std::string &path) : le(lexer(path)) {
 	return;
 }
 
@@ -60,7 +60,6 @@ parser &parser::operator=(const parser &other) {
 
 	// set attributes
 	le = other.le;
-	syn_tree = other.syn_tree;
 	return *this;
 }
 
@@ -74,8 +73,7 @@ bool parser::operator==(const parser &other) {
 		return true;
 
 	// check attributes
-	return le == other.le
-			&& syn_tree == other.syn_tree;
+	return le == other.le;
 }
 
 /*
@@ -83,56 +81,6 @@ bool parser::operator==(const parser &other) {
  */
 bool parser::operator!=(const parser &other) {
 	return !(*this == other);
-}
-
-/*
- * Expression
- */
-void parser::e0p(void) {
-
-	// parse add/sub expression
-	if(le.type() == token::ARITH
-			&& (le.text() == lexer::ARITH_SYMBOL[lexer::ADDITION]
-		                                    || le.text() == lexer::ARITH_SYMBOL[lexer::SUBTRACT])) {
-		le.next();
-		e1();
-		e0p();
-	}
-}
-
-/*
- * Expression
- */
-void parser::e1(void) {
-	e2();
-	e1p();
-}
-
-/*
- * Expression
- */
-void parser::e1p(void) {
-
-	// parse mul/div expression
-	if(le.type() == token::ARITH
-			&& (le.text() == lexer::ARITH_SYMBOL[lexer::MULTIPLY]
-		                                    || le.text() == lexer::ARITH_SYMBOL[lexer::DIVIDE])) {
-		le.next();
-		e2();
-		e1p();
-	}
-}
-
-/*
- * Expression
- */
-void parser::e2(void) {
-	if(le.type() != token::ID
-			&& le.type() != token::NAME
-			&& le.type() != token::NUMERIC
-			&& le.type() != token::HEX_NUMERIC)
-		throw std::runtime_error(exception_message("Invalid expression"));
-	le.next();
 }
 
 /*
@@ -150,8 +98,11 @@ std::string parser::exception_message(const std::string message) {
  * Expression
  */
 void parser::expr(void) {
-	e1();
-	e0p();
+	term();
+	if(le.type() == lexer::ADDITION) {
+		le.next();
+		term();
+	}
 }
 
 /*
@@ -168,15 +119,15 @@ void parser::op(void) {
 
 	// check for opcode
 	switch(le.type()) {
-		case token::B_OP:
+		case lexer::B_OP:
 			le.next();
 			oper();
-			if(le.type() != token::SEPERATOR)
+			if(le.type() != lexer::SEPERATOR)
 				throw std::runtime_error(exception_message("Expecting ',' seperating operands"));
 			le.next();
 			oper();
 			break;
-		case token::NB_OP:
+		case lexer::NB_OP:
 			le.next();
 			oper();
 			break;
@@ -188,18 +139,14 @@ void parser::op(void) {
  * Operand
  */
 void parser::oper(void) {
-	if(le.type() == token::OPEN_BRACE) {
+	if(le.type() == lexer::OPEN_BRACE) {
 		le.next();
 		expr();
-		if(le.type() != token::CLOSE_BRACE)
+		if(le.type() != lexer::CLOSE_BRACE)
 			throw std::runtime_error(exception_message("Expecting closing brace ']' before end of operand"));
-	} else if(le.type() != token::ID
-			&& le.type() != token::NAME
-			&& le.type() != token::NUMERIC
-			&& le.type() != token::HEX_NUMERIC
-			&& le.type() != token::STRING)
-		throw std::runtime_error(exception_message("Invalid operand"));
-	le.next();
+		le.next();
+	} else
+		term();
 }
 
 /*
@@ -218,14 +165,6 @@ void parser::parse(void) {
  */
 void parser::reset(void) {
 	le.reset();
-	syn_tree.clear();
-}
-
-/*
- * Syntax tree size
- */
-size_t parser::size(void) {
-	return syn_tree.size();
 }
 
 /*
@@ -234,9 +173,9 @@ size_t parser::size(void) {
 void parser::stmt(void) {
 
 	// attempt to parse statement
-	if(le.type() == token::LABEL_HEADER) {
+	if(le.type() == lexer::LABEL_HEADER) {
 		le.next();
-		if(le.type() != token::NAME)
+		if(le.type() != lexer::NAME)
 			throw std::runtime_error(exception_message("Expecting name after label header"));
 		le.next();
 	}
@@ -244,10 +183,15 @@ void parser::stmt(void) {
 }
 
 /*
- * Return syntax tree
+ * Terminal
  */
-std::vector<token *> &parser::syntax_tree(void) {
-	return syn_tree;
+void parser::term(void) {
+	if(le.type() != lexer::ID
+			&& le.type() != lexer::NAME
+			&& le.type() != lexer::NUMERIC
+			&& le.type() != lexer::HEX_NUMERIC)
+		throw std::runtime_error(exception_message("Invalid operand"));
+	le.next();
 }
 
 /*
@@ -257,8 +201,8 @@ std::string parser::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << "STATEMENTS: " << size() << std::endl;
-	for(size_t i = 0; i < syn_tree.size(); ++i)
-		ss << i << ": " << std::endl << token::to_string_recursive(syn_tree.at(i));
+
+	// TODO
+
 	return ss.str();
 }

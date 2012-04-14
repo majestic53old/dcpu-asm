@@ -24,7 +24,7 @@
 /*
  * Pushback buffer constructor
  */
-pb_buffer::pb_buffer(void) : ch(0), ln(0) {
+pb_buffer::pb_buffer(void) : ch(0), ln(1) {
 	return;
 }
 
@@ -39,7 +39,7 @@ pb_buffer::pb_buffer(const pb_buffer &other) {
 /*
  * Pushback buffer constructor
  */
-pb_buffer::pb_buffer(const std::string &path) : ch(0), ln(0) {
+pb_buffer::pb_buffer(const std::string &path) : ch(0), ln(1) {
 	std::ifstream file(path.c_str(), std::ios::in);
 	if(!file.is_open())
 		throw std::runtime_error(std::string(path + " (file not found)"));
@@ -112,7 +112,7 @@ bool pb_buffer::operator<<(char &ch) {
  */
 void pb_buffer::clear(void) {
 	ch = 0;
-	ln = 0;
+	ln = 1;
 	buff.clear();
 }
 
@@ -169,7 +169,7 @@ bool pb_buffer::prev(char &ch) {
  * Reset position
  */
 void pb_buffer::reset(void) {
-	ln = 0;
+	ln = 1;
 	buff.seekg(0, std::ios::beg);
 	ch = buff.peek();
 	if(this->ch == NEWLINE)

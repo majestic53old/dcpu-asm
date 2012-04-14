@@ -23,7 +23,7 @@
 #include <set>
 #include <string>
 #include "pb_buffer.hpp"
-#include "token.hpp"
+
 
 class lexer {
 private:
@@ -42,11 +42,6 @@ private:
 	 * Pushback buffer
 	 */
 	pb_buffer buff;
-
-	/*
-	 * Check if token is arithmetic
-	 */
-	bool is_arithmetic(void);
 
 	/*
 	 * Check if token is a basic opcode
@@ -91,12 +86,10 @@ private:
 public:
 
 	/*
-	 * Arithmetic symbols
+	 * Supported token types
 	 */
-	enum ARITH { ADDITION, SUBTRACT, MULTIPLY, DIVIDE, };
-	static const size_t ARITH_COUNT = 4;
-	static const std::string ARITH_SYMBOL[ARITH_COUNT];
-	static const std::set<std::string> ARITH_SET;
+	enum TYPE { BEGIN, END, UNKNOWN, ADDITION, CLOSE_BRACE, ID, LABEL_HEADER, NAME,
+		HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR };
 
 	/*
 	 * Identifier symbols
@@ -126,12 +119,12 @@ public:
 	/*
 	 * Misc symbols
 	 */
+	static const char ADD_CH = '+';
 	static const char C_BRACE = ']';
 	static const char COMMENT = ';';
 	static const char HEX_DIV = 'x';
 	static const char L_HEADER = ':';
 	static const char O_BRACE = '[';
-	static const char QUOTE = '\"';
 	static const char SEP = ',';
 
 	/*
@@ -205,14 +198,14 @@ public:
 	std::string to_string(void);
 
 	/*
-	 * Return current token
-	 */
-	token to_token(void);
-
-	/*
 	 * Lexer token type
 	 */
 	unsigned char type(void);
+
+	/*
+	 * Return a string representation of a token type
+	 */
+	static std::string type_to_string(unsigned char type);
 };
 
 #endif

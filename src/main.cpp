@@ -22,7 +22,6 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "pb_buffer.hpp"
-#include "token.hpp"
 
 int main(int argc, char *argv[]) {
 
