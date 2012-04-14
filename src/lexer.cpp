@@ -21,13 +21,6 @@
 #include "lexer.hpp"
 
 /*
- * Identifier symbols
- */
-const std::string lexer::ID_SYMBOL[ID_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J",
-	"POP", "PEEK", "PUSH", "SP", "PC", "O" };
-const std::set<std::string> lexer::ID_SET(ID_SYMBOL, ID_SYMBOL + ID_COUNT);
-
-/*
  * Basic opcode symbols
  */
 const std::string lexer::B_OP_SYMBOL[B_OP_COUNT] = { "SET", "ADD", "SUB", "MUL", "DIV", "MOD",
@@ -39,6 +32,18 @@ const std::set<std::string> lexer::B_OP_SET(B_OP_SYMBOL, B_OP_SYMBOL + B_OP_COUN
  */
 const std::string lexer::NB_OP_SYMBOL[NB_OP_COUNT] = { "JSR", };
 const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_COUNT);
+
+/*
+ * Register symbols
+ */
+const std::string lexer::REG_SYMBOL[REG_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J", "SP", "PC", "O", };
+const std::set<std::string> lexer::REG_SET(REG_SYMBOL, REG_SYMBOL + REG_COUNT);
+
+/*
+ * Stack operation symbols
+ */
+const std::string lexer::ST_OPER_SYMBOL[ST_OPER_COUNT] = { "POP", "PEEK", "PUSH", };
+const std::set<std::string> lexer::ST_OPER_SET(ST_OPER_SYMBOL, ST_OPER_SYMBOL + ST_OPER_COUNT);
 
 /*
  * Lexer constructor
@@ -144,17 +149,24 @@ bool lexer::is_hex(char ch) {
 }
 
 /*
- * Check if token is an identifier
- */
-bool lexer::is_identifier(void) {
-	return ID_SET.find(txt) != ID_SET.end();
-}
-
-/*
  * Check if a token is a non-basic opcode
  */
 bool lexer::is_non_basic_opcode(void) {
 	return NB_OP_SET.find(txt) != NB_OP_SET.end();
+}
+
+/*
+ * Check if token is a register
+ */
+bool lexer::is_register(void) {
+	return REG_SET.find(txt) != REG_SET.end();
+}
+
+/*
+ * Check if token is a stack operation
+ */
+bool lexer::is_stack_operation(void) {
+	return ST_OPER_SET.find(txt) != ST_OPER_SET.end();
 }
 
 /*
@@ -209,11 +221,13 @@ void lexer::phrase(void) {
 	do {
 		txt += ch;
 	} while(buff >> ch
-			&& isalpha(ch));
+			&& isalnum(ch));
 
 	// determine type
-	if(is_identifier())
-		typ = ID;
+	if(is_register())
+		typ = REGISTER;
+	else if(is_stack_operation())
+		typ = ST_OPER;
 	else if(is_basic_opcode())
 		typ = B_OP;
 	else if(is_non_basic_opcode())
@@ -328,7 +342,7 @@ std::string lexer::type_to_string(unsigned char type) {
 			break;
 		case CLOSE_BRACE: out = "[CLOSE BRACE]";
 			break;
-		case ID: out = "[IDENTIFIER]";
+		case REGISTER: out = "[REGISTER]";
 			break;
 		case LABEL_HEADER: out = "[LABEL HEADER]";
 			break;
@@ -345,6 +359,8 @@ std::string lexer::type_to_string(unsigned char type) {
 		case OPEN_BRACE: out = "[OPEN BRACE]";
 			break;
 		case SEPERATOR: out = "[SEPERATOR]";
+			break;
+		case ST_OPER: out = "[STACK OPERATION]";
 			break;
 		default: out = "[UNKNOWN]";
 			break;

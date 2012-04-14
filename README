@@ -22,10 +22,12 @@ SYNTAX:
 
 	nb_op ::= JSR
 
-	id ::= A | B | C | X | Y | Z | I | J | PC | SP | O | PUSH | POP | PEEK
+	reg ::= A | B | C | X | Y | Z | I | J | PC | SP | O
+
+	st_op ::= PUSH | POP | PEEK
 
 	oper ::= [ <expr> ] | <term>
 
-	expr ::= <term> + <term> | <term>
+	expr ::= <numeric> + <reg> | <hex_numeric> + <reg> | <numeric> | <hex_numeric> | <reg>
 
-	term ::= <id> | <name> | <numeric> | <hex_numeric>
+	term ::= <name> | <numeric> | <hex_numeric> | <reg> | <st_op>

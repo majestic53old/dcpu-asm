@@ -106,11 +106,19 @@ std::string parser::exception_message(const std::string &message) {
  * Expression
  */
 void parser::expr(void) {
-	term();
-	if(le.type() == lexer::ADDITION) {
+	if(le.type() == lexer::REGISTER)
 		le.next();
-		term();
-	}
+	else if(le.type() == lexer::NUMERIC
+			|| le.type() == lexer::HEX_NUMERIC) {
+		le.next();
+		if(le.type() == lexer::ADDITION) {
+			le.next();
+			if(le.type() != lexer::REGISTER)
+				throw std::runtime_error(exception_message("Expecting register after '+' addition"));
+			le.next();
+		}
+	} else
+		throw std::runtime_error(exception_message("Invalid expression"));
 }
 
 /*
@@ -118,6 +126,28 @@ void parser::expr(void) {
  */
 std::vector<word> &parser::generated_code(void) {
 	return code;
+}
+
+/*
+ * Determine an instruction length based off its type and operands
+ */
+size_t parser::instruction_length(word op_type, word a, word b) {
+	size_t offset = 0;
+
+	// determine based off opcode type
+	switch(op_type) {
+		case BASIC_OP:
+
+			// TODO
+
+			break;
+		case NON_BASIC_OP:
+
+			// TODO
+
+			break;
+	}
+	return offset;
 }
 
 /*
@@ -132,6 +162,16 @@ std::map<std::string, size_t> &parser::label_list(void) {
  */
 lexer &parser::lex(void) {
 	return le;
+}
+
+/*
+ * Number
+ */
+void parser::number(void) {
+	if(le.type() != lexer::NUMERIC
+			&& le.type() != lexer::HEX_NUMERIC)
+		throw std::runtime_error(exception_message("Expecting numeric value"));
+	le.next();
 }
 
 /*
@@ -218,10 +258,11 @@ void parser::stmt(void) {
  * Terminal
  */
 void parser::term(void) {
-	if(le.type() != lexer::ID
-			&& le.type() != lexer::NAME
+	if(le.type() != lexer::NAME
 			&& le.type() != lexer::NUMERIC
-			&& le.type() != lexer::HEX_NUMERIC)
+			&& le.type() != lexer::HEX_NUMERIC
+			&& le.type() != lexer::REGISTER
+			&& le.type() != lexer::ST_OPER)
 		throw std::runtime_error(exception_message("Invalid operand"));
 	le.next();
 }

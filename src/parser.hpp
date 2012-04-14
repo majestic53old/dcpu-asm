@@ -34,6 +34,14 @@ class parser {
 private:
 
 	/*
+	 * Supported Opcode Types
+	 */
+	enum OP_TYPE {
+		BASIC_OP,
+		NON_BASIC_OP,
+	};
+
+	/*
 	 * Lexer
 	 */
 	lexer le;
@@ -62,6 +70,16 @@ private:
 	 * Expression
 	 */
 	void expr(void);
+
+	/*
+	 * Determine an instruction length based off its type and operands
+	 */
+	size_t instruction_length(word op_type, word a, word b);
+
+	/*
+	 * Number
+	 */
+	void number(void);
 
 	/*
 	 * Opcode

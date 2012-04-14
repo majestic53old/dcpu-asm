@@ -36,13 +36,14 @@ int main(int argc, char *argv[]) {
 		par.parse();
 
 		std::cout << par.to_string() << std::endl << std::endl << "Writing to file... "
-				<< (par.to_file(std::string(SOURCE + ".bin")) ? "Successful." : "Failed!") << std::endl
-				<< "Done." << std::endl;
+				<< (par.to_file(std::string(SOURCE + ".bin")) ? "Successful." : "Failed!") << std::endl;
 
 	} catch(std::runtime_error &exc) {
 		std::cerr << "Exception: " << exc.what() << std::endl;
 		return 1;
 	}
+
+	std::cout << "Done." << std::endl;
 
 	return 0;
 }
