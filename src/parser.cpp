@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include "parser.hpp"
@@ -24,21 +26,21 @@
 /*
  * Parser constructor
  */
-parser::parser(void) {
+parser::parser(void) : pos(0) {
 	return;
 }
 
 /*
  * Parser constructor
  */
-parser::parser(const parser &other) : le(other.le) {
+parser::parser(const parser &other) : le(other.le), pos(other.pos), code(other.code), l_list(other.l_list) {
 	return;
 }
 
 /*
  * Parser constructor
  */
-parser::parser(const std::string &path) : le(lexer(path)) {
+parser::parser(const std::string &path) : le(lexer(path)), pos(0) {
 	return;
 }
 
@@ -60,6 +62,9 @@ parser &parser::operator=(const parser &other) {
 
 	// set attributes
 	le = other.le;
+	pos = other.pos;
+	code = other.code;
+	l_list = other.l_list;
 	return *this;
 }
 
@@ -73,7 +78,10 @@ bool parser::operator==(const parser &other) {
 		return true;
 
 	// check attributes
-	return le == other.le;
+	return le == other.le
+			&& pos == other.pos
+			&& code == other.code
+			&& l_list == other.l_list;
 }
 
 /*
@@ -86,7 +94,7 @@ bool parser::operator!=(const parser &other) {
 /*
  * Return a string representation of an exception
  */
-std::string parser::exception_message(const std::string message) {
+std::string parser::exception_message(const std::string &message) {
 	std::stringstream ss;
 
 	// form exception message
@@ -103,6 +111,20 @@ void parser::expr(void) {
 		le.next();
 		term();
 	}
+}
+
+/*
+ * Return parser generated code
+ */
+std::vector<word> &parser::generated_code(void) {
+	return code;
+}
+
+/*
+ * Return parser label list
+ */
+std::map<std::string, size_t> &parser::label_list(void) {
+	return l_list;
 }
 
 /*
@@ -164,7 +186,17 @@ void parser::parse(void) {
  * Reset parser
  */
 void parser::reset(void) {
+	pos = 0;
 	le.reset();
+	code.clear();
+	l_list.clear();
+}
+
+/*
+ * Return parser generated code size
+ */
+size_t parser::size(void) {
+	return code.size();
 }
 
 /*
@@ -195,14 +227,42 @@ void parser::term(void) {
 }
 
 /*
+ * Writes generated code to file
+ */
+bool parser::to_file(const std::string &path) {
+	std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+
+	// confirm file is open
+	if(!file.is_open())
+		return false;
+
+	// write each word to file
+	for(size_t i = 0; i < code.size(); ++i) {
+		file << (unsigned char) (code.at(i) >> 8);
+		file << (unsigned char) code.at(i);
+	}
+	return true;
+}
+
+/*
  * Return a string representation of parser
  */
 std::string parser::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
+	ss << "SIZE: " << code.size() << " words [" << (code.size() * sizeof(word)) << " bytes]" << std::endl;
 
-	// TODO
+	// iterate through elements
+	for(size_t i = 0; i < code.size(); ++i) {
+		if(!(i % 16)) {
+			if(i)
+				ss << std::endl;
+			ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (i) << " | ";
+		}
 
+		// convert each element into hex
+		ss << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (unsigned)(word) code.at(i) << " ";
+	}
 	return ss.str();
 }

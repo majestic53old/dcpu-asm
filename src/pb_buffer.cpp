@@ -67,7 +67,7 @@ pb_buffer &pb_buffer::operator=(const pb_buffer &other) {
 	ch = other.ch;
 	ln = other.ln;
 	buff.clear();
-	buff << other.buff;
+	buff << other.buff.rdbuf();
 	return *this;
 }
 

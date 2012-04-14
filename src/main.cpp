@@ -23,20 +23,26 @@
 #include "parser.hpp"
 #include "pb_buffer.hpp"
 
+static const std::string SOURCE("demo");
+
 int main(int argc, char *argv[]) {
+	parser par;
+
+	std::cout << "DCPU-ASM (source file: \'" << SOURCE << "\')" << std::endl << std::endl;
 
 	try {
 
-		parser par("demo");
+		par = parser(SOURCE);
 		par.parse();
+
+		std::cout << par.to_string() << std::endl << std::endl << "Writing to file... "
+				<< (par.to_file(std::string(SOURCE + ".bin")) ? "Successful." : "Failed!") << std::endl
+				<< "Done." << std::endl;
 
 	} catch(std::runtime_error &exc) {
 		std::cerr << "Exception: " << exc.what() << std::endl;
 		return 1;
 	}
 
-	//std::cout << par.to_string() << std::endl;
-
-	std::cout << "DONE." << std::endl;
 	return 0;
 }

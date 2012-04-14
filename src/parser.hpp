@@ -20,9 +20,15 @@
 #ifndef PARSER_HPP_
 #define PARSER_HPP_
 
+#include <map>
 #include <string>
 #include <vector>
 #include "lexer.hpp"
+
+/*
+ * Word type
+ */
+typedef unsigned short word;
 
 class parser {
 private:
@@ -33,9 +39,24 @@ private:
 	lexer le;
 
 	/*
+	 * Current word offset
+	 */
+	size_t pos;
+
+	/*
+	 * Generated code
+	 */
+	std::vector<word> code;
+
+	/*
+	 * Map labels to associated word offset
+	 */
+	std::map<std::string, size_t> l_list;
+
+	/*
 	 * Return a string representation of an exception
 	 */
-	std::string exception_message(const std::string message);
+	std::string exception_message(const std::string &message);
 
 	/*
 	 * Expression
@@ -100,6 +121,16 @@ public:
 	bool operator!=(const parser &other);
 
 	/*
+	 * Return parser generated code
+	 */
+	std::vector<word> &generated_code(void);
+
+	/*
+	 * Return parser label list
+	 */
+	std::map<std::string, size_t> &label_list(void);
+
+	/*
 	 * Return lexer
 	 */
 	lexer &lex(void);
@@ -113,6 +144,16 @@ public:
 	 * Reset parser
 	 */
 	void reset(void);
+
+	/*
+	 * Return parser generated code size
+	 */
+	size_t size(void);
+
+	/*
+	 * Writes generated code to file
+	 */
+	bool to_file(const std::string &path);
 
 	/*
 	 * Return a string representation of parser
