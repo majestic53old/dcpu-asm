@@ -33,17 +33,19 @@ static const size_t DWORD_LEN = 32;
 /*
  * Supported basic opcode types
  */
-enum B_OP_TYPES { SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
+enum B_OP_TYPES { NB, SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
 	AND, BOR, XOR, IFE, IFN, IFG, IFB, };
-static const size_t B_OP_COUNT = 15;
+static const size_t B_OP_COUNT = 16;
 static const word B_OP_LEN = 0x04;
+static const word B_OPER_LEN = 0x06;
 
 /*
  * Supported non-basic opcode types
  */
-enum NB_OP_TYPES { JSR, };
-static const size_t NB_OP_COUNT = 1;
+enum NB_OP_TYPES { RES, JSR, };
+static const size_t NB_OP_COUNT = 2;
 static const word NB_OP_LEN = 0x06;
+static const word NB_OPER_LEN = 0x06;
 
 /*
  * Supported opcode types

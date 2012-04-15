@@ -101,6 +101,20 @@ std::vector<word> generic_instr::code(void) {
 }
 
 /*
+ * Return a string representation of code
+ */
+std::string generic_instr::code_to_string(std::vector<word> in_code) {
+	std::stringstream ss;
+
+	for(word i = 0; i < in_code.size(); ++i) {
+
+		// convert each element into hex
+		ss << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (unsigned)(word) in_code.at(i) << " ";
+	}
+	return ss.str();
+}
+
+/*
  * Return opcode
  */
 word generic_instr::opcode(void) {
@@ -114,9 +128,23 @@ std::string generic_instr::opcode_to_string(word op, word type) {
 	std::string out;
 
 	switch(type) {
-		case BASIC_OP: out = lexer::B_OP_SYMBOL[op - 1];
+
+		// search basic opcodes for match
+		case BASIC_OP:
+			if(!op
+					|| op >= B_OP_COUNT)
+				out = "UNKNOWN";
+			else
+				out = lexer::B_OP_SYMBOL[op];
 			break;
-		case NONBASIC_OP: out = lexer::NB_OP_SYMBOL[op - 1];
+
+		// search non-basic opcodes for match
+		case NONBASIC_OP:
+			if(!op
+					|| op >= NB_OP_COUNT)
+				out = "UNKNOWN";
+			else
+				out = lexer::NB_OP_SYMBOL[op];
 			break;
 	}
 	return out;
@@ -150,7 +178,7 @@ std::string generic_instr::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << type_to_string(typ) << "" << opcode_to_string(op, typ);
+	ss << type_to_string(typ) << " " << opcode_to_string(op, typ);
 	return ss.str();
 }
 

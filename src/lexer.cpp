@@ -23,14 +23,14 @@
 /*
  * Basic opcode symbols
  */
-const std::string lexer::B_OP_SYMBOL[B_OP_COUNT] = { "SET", "ADD", "SUB", "MUL", "DIV", "MOD",
+const std::string lexer::B_OP_SYMBOL[B_OP_COUNT] = { "", "SET", "ADD", "SUB", "MUL", "DIV", "MOD",
 	"SHL", "SHR", "AND", "BOR", "XOR", "IFE", "IFN", "IFG", "IFB", };
 const std::set<std::string> lexer::B_OP_SET(B_OP_SYMBOL, B_OP_SYMBOL + B_OP_COUNT);
 
 /*
  * Non-Basic opcode symbols
  */
-const std::string lexer::NB_OP_SYMBOL[NB_OP_COUNT] = { "JSR", };
+const std::string lexer::NB_OP_SYMBOL[NB_OP_COUNT] = { "", "JSR", };
 const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_COUNT);
 
 /*
@@ -136,7 +136,8 @@ bool lexer::has_next(void) {
  * Check if token is an opcode
  */
 bool lexer::is_basic_opcode(void) {
-	return B_OP_SET.find(txt) != B_OP_SET.end();
+	return (!txt.empty())
+			&& B_OP_SET.find(txt) != B_OP_SET.end();
 }
 
 /*
@@ -152,7 +153,8 @@ bool lexer::is_hex(char ch) {
  * Check if a token is a non-basic opcode
  */
 bool lexer::is_non_basic_opcode(void) {
-	return NB_OP_SET.find(txt) != NB_OP_SET.end();
+	return (!txt.empty())
+			&& NB_OP_SET.find(txt) != NB_OP_SET.end();
 }
 
 /*

@@ -86,6 +86,11 @@ public:
 	virtual std::vector<word> code(void);
 
 	/*
+	 * Return a string representation of code
+	 */
+	static std::string code_to_string(std::vector<word> in_code);
+
+	/*
 	 * Return opcode
 	 */
 	word opcode(void);

@@ -20,9 +20,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include "basic_instr.hpp"
 #include "lexer.hpp"
+#include "nonbasic_instr.hpp"
 #include "parser.hpp"
 #include "pb_buffer.hpp"
+#include "types.hpp"
 
 static const std::string SOURCE("demo");
 

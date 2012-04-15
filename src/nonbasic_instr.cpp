@@ -96,8 +96,20 @@ std::vector<word> nonbasic_instr::code(void) {
 	// compile instruction
 	for(size_t i = 0; i < WORD_LEN; ++i) {
 
-		// TODO
+		// all zeros
+		if(i < B_OP_LEN)
+			continue;
 
+		// generate opcode
+		else if((i >= B_OP_LEN) && (i < B_OP_LEN + NB_OP_LEN)) {
+			if(op & (1 << (i - B_OP_LEN)))
+				instr |= (1 << i);
+
+		// generate A operand
+		} else {
+			if(a_type & (1 << (i - (B_OP_LEN + NB_OPER_LEN))))
+				instr |= (1 << i);
+		}
 	}
 	out.push_back(instr);
 
@@ -153,6 +165,7 @@ std::string nonbasic_instr::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << generic_instr::to_string() << ": " << std::hex << a << " [" << a_type << "], " << std::endl;
+	ss << generic_instr::to_string() << ": " << std::hex << "0x" << (unsigned)(word) a << " [" << "0x"
+			<< (unsigned)(word) a_type << "], ( " << generic_instr::code_to_string(code()) << ")" << std::endl;
 	return ss.str();
 }

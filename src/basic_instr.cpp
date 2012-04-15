@@ -98,12 +98,24 @@ std::vector<word> basic_instr::code(void) {
 	word instr = 0;
 	std::vector<word> out;
 
-	// compile instruction
-	for(size_t i = 0; i < WORD_LEN; ++i) {
+	// iterate through word length
+	for(size_t i = 0; i < WORD_LEN; ++i)
 
-		// TODO
+		// generate opcode
+		if(i < B_OP_LEN) {
+			if(op & (1 << i))
+				instr |= (1 << i);
 
-	}
+		// generate A operand
+		} else if((i >= B_OP_LEN) && (i < B_OP_LEN + B_OPER_LEN)) {
+			if(a_type & (1 << (i - B_OP_LEN)))
+				instr |= (1 << i);
+
+		// generate B operand
+		} else {
+			if(b_type & (1 << (i - (B_OP_LEN + B_OPER_LEN))))
+				instr |= (1 << i);
+		}
 	out.push_back(instr);
 
 	// append A value if needed
@@ -195,6 +207,7 @@ std::string basic_instr::to_string(void) {
 	std::stringstream ss;
 
 	// form string representation
-	ss << generic_instr::to_string() << ": " << std::hex << a << " [" << a_type << "], " << b << " [" << b_type << "]" << std::endl;
+	ss << generic_instr::to_string() << ": " << std::hex << "0x" << (unsigned)(word) a << " [" << "0x" << (unsigned)(word) a_type << "], "
+			<< "0x" << (unsigned)(word) b << " [" << "0x" << (unsigned)(word) b_type << "], ( " << generic_instr::code_to_string(code()) << ")" << std::endl;
 	return ss.str();
 }

@@ -148,6 +148,11 @@ public:
 	static word op_value(const std::string &name);
 
 	/*
+	 * Operand string to value
+	 */
+	static word oper_value(const std::string &str, bool hex);
+
+	/*
 	 * Parse input
 	 */
 	void parse(void);

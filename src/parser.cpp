@@ -217,12 +217,12 @@ word parser::op_value(const std::string &name) {
 	// check if basic op
 	for(size_t i = 0; i < B_OP_COUNT; ++i)
 		if(lexer::B_OP_SYMBOL[i] == name)
-			return (word) (i + 1);
+			return (word) i;
 
 	// check if non-basic op
 	for(size_t i = 0; i < NB_OP_COUNT; ++i)
 		if(lexer::NB_OP_SYMBOL[i] == name)
-			return (word) (i + 1);
+			return (word) i;
 	return 0;
 }
 
@@ -245,6 +245,23 @@ void parser::oper(generic_instr **instr, word pos) {
 		le.next();
 	} else
 		term();
+}
+
+/*
+ * Operand string to value
+ */
+word parser::oper_value(const std::string &str, bool hex) {
+	word value;
+	std::stringstream ss;
+
+	// append hex if needed
+	if(hex)
+		ss << std::hex;
+
+	// convert to word
+	ss << str;
+	ss >> value;
+	return value;
 }
 
 /*
