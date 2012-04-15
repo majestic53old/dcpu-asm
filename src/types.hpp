@@ -21,11 +21,14 @@
 #define TYPES_HPP_
 
 /*
- * Word size
+ * Word types
  */
 typedef unsigned char halfword;
+static const size_t HALF_WORD_LEN = 8;
 typedef unsigned short word;
+static const size_t WORD_LEN = 16;
 typedef unsigned int dword;
+static const size_t DWORD_LEN = 32;
 
 /*
  * Supported basic opcode types
@@ -33,17 +36,20 @@ typedef unsigned int dword;
 enum B_OP_TYPES { SET, ADD, SUB, MUL, DIV, MOD, SHL, SHR,
 	AND, BOR, XOR, IFE, IFN, IFG, IFB, };
 static const size_t B_OP_COUNT = 15;
+static const word B_OP_LEN = 0x04;
 
 /*
  * Supported non-basic opcode types
  */
 enum NB_OP_TYPES { JSR, };
 static const size_t NB_OP_COUNT = 1;
+static const word NB_OP_LEN = 0x06;
 
 /*
  * Supported opcode types
  */
-enum OP_TYPE { BASIC_OP, NON_BASIC_OP, };
+enum OP_TYPE { BASIC_OP, NONBASIC_OP, };
+enum OPER_POS { A_OPER, B_OPER, };
 
 /*
  * Supported operand types

@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
 
 	} catch(std::runtime_error &exc) {
 		std::cerr << "Exception: " << exc.what() << std::endl;
+		par.cleanup();
 		return 1;
 	}
 

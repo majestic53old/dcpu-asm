@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "generic_instr.hpp"
 #include "lexer.hpp"
 #include "types.hpp"
 
@@ -40,14 +41,14 @@ private:
 	size_t pos;
 
 	/*
-	 * Generated code
+	 * Generated instructions
 	 */
-	std::vector<word> code;
+	std::vector<generic_instr *> instructions;
 
 	/*
 	 * Map labels to associated word offset
 	 */
-	std::map<std::string, size_t> l_list;
+	std::map<std::string, word> l_list;
 
 	/*
 	 * Return a string representation of an exception
@@ -60,19 +61,14 @@ private:
 	void expr(void);
 
 	/*
-	 * Number
-	 */
-	void number(void);
-
-	/*
 	 * Opcode
 	 */
-	void op(void);
+	void op(generic_instr **instr);
 
 	/*
 	 * Operand
 	 */
-	void oper(void);
+	void oper(generic_instr **instr, word pos);
 
 	/*
 	 * Statement
@@ -122,24 +118,34 @@ public:
 	bool operator!=(const parser &other);
 
 	/*
-	 * Return parser generated code
+	 * Cleanup allocated instructions
 	 */
-	std::vector<word> &generated_code(void);
+	void cleanup(void);
 
 	/*
-	 * Determine an instructions word length based off its type and operands
+	 * Return parser generated code
 	 */
-	static size_t instruction_length(word op_type, word a_type, word b_type);
+	std::vector<word> generated_code(void);
+
+	/*
+	 * Return parser generated instructions
+	 */
+	std::vector<generic_instr *> &generated_instructions(void);
 
 	/*
 	 * Return parser label list
 	 */
-	std::map<std::string, size_t> &label_list(void);
+	std::map<std::string, word> &label_list(void);
 
 	/*
 	 * Return lexer
 	 */
 	lexer &lex(void);
+
+	/*
+	 * Opcode name to value
+	 */
+	static word op_value(const std::string &name);
 
 	/*
 	 * Parse input
@@ -152,7 +158,7 @@ public:
 	void reset(void);
 
 	/*
-	 * Return parser generated code size
+	 * Return parser generated instructions size
 	 */
 	size_t size(void);
 

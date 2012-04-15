@@ -21,6 +21,8 @@
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
+#include "basic_instr.hpp"
+#include "nonbasic_instr.hpp"
 #include "parser.hpp"
 
 /*
@@ -33,7 +35,7 @@ parser::parser(void) : pos(0) {
 /*
  * Parser constructor
  */
-parser::parser(const parser &other) : le(other.le), pos(other.pos), code(other.code), l_list(other.l_list) {
+parser::parser(const parser &other) : le(other.le), pos(other.pos), instructions(other.instructions), l_list(other.l_list) {
 	return;
 }
 
@@ -48,7 +50,7 @@ parser::parser(const std::string &path) : le(lexer(path)), pos(0) {
  * Parser destructor
  */
 parser::~parser(void) {
-	return;
+	cleanup();
 }
 
 /*
@@ -63,7 +65,7 @@ parser &parser::operator=(const parser &other) {
 	// set attributes
 	le = other.le;
 	pos = other.pos;
-	code = other.code;
+	instructions = other.instructions;
 	l_list = other.l_list;
 	return *this;
 }
@@ -78,10 +80,15 @@ bool parser::operator==(const parser &other) {
 		return true;
 
 	// check attributes
-	return le == other.le
-			&& pos == other.pos
-			&& code == other.code
-			&& l_list == other.l_list;
+	if(le != other.le
+			|| pos != other.pos
+			|| instructions.size() != other.instructions.size()
+			|| l_list != other.l_list)
+		return false;
+	for(size_t i = 0; i < instructions.size(); ++i)
+		if(instructions.at(i) != other.instructions.at(i))
+			return false;
+	return true;
 }
 
 /*
@@ -89,6 +96,17 @@ bool parser::operator==(const parser &other) {
  */
 bool parser::operator!=(const parser &other) {
 	return !(*this == other);
+}
+
+/*
+ * Cleanup allocated instructions
+ */
+void parser::cleanup(void) {
+
+	// free all allocated instructions
+	for(size_t i = 0; i < instructions.size(); ++i)
+		delete instructions.at(i);
+	instructions.clear();
 }
 
 /*
@@ -124,42 +142,28 @@ void parser::expr(void) {
 /*
  * Return parser generated code
  */
-std::vector<word> &parser::generated_code(void) {
-	return code;
+std::vector<word> parser::generated_code(void) {
+	std::vector<word> gen_code, code;
+
+	// iterate through instructions
+	for(size_t i = 0; i < instructions.size(); ++i) {
+		code = instructions.at(i)->code();
+		gen_code.insert(gen_code.end(), code.begin(), code.end());
+	}
+	return gen_code;
 }
 
 /*
- * Determine an instructions word length based off its type and operands
+ * Return parser generated instructions
  */
-size_t parser::instruction_length(word op_type, word a_type, word b_type) {
-	size_t offset = 1;
-
-	switch(op_type) {
-
-		// basic opcode
-		case BASIC_OP:
-			offset += (((a_type >= L_OFF) && (a_type <= H_OFF))
-							|| a_type == ADR_OFF
-							|| a_type == LIT_OFF)
-					+ (((b_type >= L_OFF) && (b_type <= H_OFF))
-							|| b_type == 0x1E
-							|| b_type == 0x1F);
-			break;
-
-		// non-basic opcode (disregard b_type)
-		case NON_BASIC_OP:
-			offset += (((a_type >= L_OFF) && (a_type <= H_OFF))
-							|| a_type == ADR_OFF
-							|| a_type == LIT_OFF);
-			break;
-	}
-	return offset;
+std::vector<generic_instr *> &parser::generated_instructions(void) {
+	return instructions;
 }
 
 /*
  * Return parser label list
  */
-std::map<std::string, size_t> &parser::label_list(void) {
+std::map<std::string, word> &parser::label_list(void) {
 	return l_list;
 }
 
@@ -171,42 +175,68 @@ lexer &parser::lex(void) {
 }
 
 /*
- * Number
- */
-void parser::number(void) {
-	if(le.type() != NUMERIC
-			&& le.type() != HEX_NUMERIC)
-		throw std::runtime_error(exception_message(le, "Expecting numeric value"));
-	le.next();
-}
-
-/*
  * Opcode
  */
-void parser::op(void) {
+void parser::op(generic_instr **instr) {
+
+	// check if allocated
+	if(*instr) {
+		delete (*instr);
+		(*instr) = NULL;
+	}
 
 	// check for opcode
 	switch(le.type()) {
 		case B_OP:
+			*instr = new basic_instr(l_list, op_value(le.text()));
+			if(!instr)
+				throw std::runtime_error(exception_message(le, "Runtime exception (insufficient resources)"));
 			le.next();
-			oper();
+			oper(instr, A_OPER);
 			if(le.type() != SEPERATOR)
 				throw std::runtime_error(exception_message(le, "Expecting ',' seperating operands"));
 			le.next();
-			oper();
+			oper(instr, B_OPER);
 			break;
 		case NB_OP:
+			*instr = new nonbasic_instr(l_list, op_value(le.text()));
+			if(!instr)
+				throw std::runtime_error(exception_message(le, "Runtime exception (insufficient resources)"));
 			le.next();
-			oper();
+			oper(instr, A_OPER);
 			break;
 		default: throw std::runtime_error(exception_message(le, "Expecting opcode"));
 	}
 }
 
 /*
+ * Opcode name to value
+ */
+word parser::op_value(const std::string &name) {
+
+	// check if basic op
+	for(size_t i = 0; i < B_OP_COUNT; ++i)
+		if(lexer::B_OP_SYMBOL[i] == name)
+			return (word) (i + 1);
+
+	// check if non-basic op
+	for(size_t i = 0; i < NB_OP_COUNT; ++i)
+		if(lexer::NB_OP_SYMBOL[i] == name)
+			return (word) (i + 1);
+	return 0;
+}
+
+/*
  * Operand
  */
-void parser::oper(void) {
+void parser::oper(generic_instr **instr, word pos) {
+
+	// check if instruction is allocated
+	if(!(*instr))
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+	// TODO: set operator type/value based off position (A or B)
+
 	if(le.type() == OPEN_BRACE) {
 		le.next();
 		expr();
@@ -234,30 +264,42 @@ void parser::parse(void) {
 void parser::reset(void) {
 	pos = 0;
 	le.reset();
-	code.clear();
+	instructions.clear();
 	l_list.clear();
 }
 
 /*
- * Return parser generated code size
+ * Return parser generated instruction size
  */
 size_t parser::size(void) {
-	return code.size();
+	return instructions.size();
 }
 
 /*
  * Statement
  */
 void parser::stmt(void) {
+	generic_instr *instr = NULL;
 
 	// attempt to parse statement
 	if(le.type() == LABEL_HEADER) {
 		le.next();
 		if(le.type() != NAME)
 			throw std::runtime_error(exception_message(le, "Expecting name after label header"));
+		if(l_list.find(le.text()) != l_list.end())
+			throw std::runtime_error(exception_message(le, std::string("Multiple instantiations of label \'" + le.text() + "\'")));
+
+		// insert label into label map
+		l_list.insert(std::pair<std::string, word>(le.text(), pos));
 		le.next();
 	}
-	op();
+
+	// build instruction
+	op(&instr);
+	if(!instr)
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+	pos += instr->size();
+	instructions.push_back(instr);
 }
 
 /*
@@ -277,6 +319,7 @@ void parser::term(void) {
  * Writes generated code to file
  */
 bool parser::to_file(const std::string &path) {
+	std::vector<word> gen_code;
 	std::ofstream file(path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 
 	// confirm file is open
@@ -284,9 +327,10 @@ bool parser::to_file(const std::string &path) {
 		return false;
 
 	// write each word to file
-	for(size_t i = 0; i < code.size(); ++i) {
-		file << (halfword) (code.at(i) >> 8);
-		file << (halfword) code.at(i);
+	gen_code = generated_code();
+	for(size_t i = 0; i < gen_code.size(); ++i) {
+		file << (halfword) (gen_code.at(i) >> 8);
+		file << (halfword) gen_code.at(i);
 	}
 	return true;
 }
@@ -296,12 +340,14 @@ bool parser::to_file(const std::string &path) {
  */
 std::string parser::to_string(void) {
 	std::stringstream ss;
+	std::vector<word> gen_code;
 
 	// form string representation
-	ss << "SIZE: " << code.size() << " words [" << (code.size() * sizeof(word)) << " bytes]" << std::endl;
+	gen_code = generated_code();
+	ss << instructions.size() << " instructions [" << gen_code.size() << " words, " << l_list.size() << " labels]" << std::endl;
 
 	// iterate through elements
-	for(size_t i = 0; i < code.size(); ++i) {
+	for(size_t i = 0; i < gen_code.size(); ++i) {
 		if(!(i % 16)) {
 			if(i)
 				ss << std::endl;
@@ -309,7 +355,7 @@ std::string parser::to_string(void) {
 		}
 
 		// convert each element into hex
-		ss << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (unsigned)(word) code.at(i) << " ";
+		ss << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << (unsigned)(word) gen_code.at(i) << " ";
 	}
 	return ss.str();
 }
