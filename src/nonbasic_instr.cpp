@@ -23,7 +23,7 @@
 /*
  * Non-Basic instruction constructor
  */
-nonbasic_instr::nonbasic_instr(std::map<std::string, word> &l_list) : generic_instr(l_list, NONBASIC_OP), a(0), a_type(0) {
+nonbasic_instr::nonbasic_instr(void) : generic_instr(NONBASIC_OP), a(0), a_type(0) {
 	return;
 }
 
@@ -37,7 +37,7 @@ nonbasic_instr::nonbasic_instr(const nonbasic_instr &other) : generic_instr(othe
 /*
  * Non-Basic instruction constructor
  */
-nonbasic_instr::nonbasic_instr(std::map<std::string, word> &l_list, word op) : generic_instr(l_list, op, NONBASIC_OP), a(0), a_type(0) {
+nonbasic_instr::nonbasic_instr(word op) : generic_instr(op, NONBASIC_OP), a(0), a_type(0) {
 	return;
 }
 

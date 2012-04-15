@@ -40,7 +40,7 @@ public:
 	/*
 	 * Basic instruction constructor
 	 */
-	basic_instr(std::map<std::string, word> &l_list);
+	basic_instr(void);
 
 	/*
 	 * Basic instruction constructor
@@ -50,7 +50,7 @@ public:
 	/*
 	 * Basic instruction constructor
 	 */
-	basic_instr(std::map<std::string, word> &l_list, word op);
+	basic_instr(word op);
 
 	/*
 	 * Basic instruction destructor

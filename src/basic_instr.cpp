@@ -24,7 +24,7 @@
 /*
  * Basic instruction constructor
  */
-basic_instr::basic_instr(std::map<std::string, word> &l_list) : generic_instr(l_list, BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
+basic_instr::basic_instr(void) : generic_instr(BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
 	return;
 }
 
@@ -38,7 +38,7 @@ basic_instr::basic_instr(const basic_instr &other) : generic_instr(other), a(oth
 /*
  * Basic instruction constructor
  */
-basic_instr::basic_instr(std::map<std::string, word> &l_list, word op) : generic_instr(l_list, op, BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
+basic_instr::basic_instr(word op) : generic_instr(op, BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
 	return;
 }
 

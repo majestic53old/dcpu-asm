@@ -188,7 +188,7 @@ void parser::op(generic_instr **instr) {
 	// check for opcode
 	switch(le.type()) {
 		case B_OP:
-			*instr = new basic_instr(l_list, op_value(le.text()));
+			*instr = new basic_instr(op_value(le.text()));
 			if(!instr)
 				throw std::runtime_error(exception_message(le, "Runtime exception (insufficient resources)"));
 			le.next();
@@ -199,7 +199,7 @@ void parser::op(generic_instr **instr) {
 			oper(instr, B_OPER);
 			break;
 		case NB_OP:
-			*instr = new nonbasic_instr(l_list, op_value(le.text()));
+			*instr = new nonbasic_instr(op_value(le.text()));
 			if(!instr)
 				throw std::runtime_error(exception_message(le, "Runtime exception (insufficient resources)"));
 			le.next();

@@ -38,17 +38,12 @@ protected:
 	 */
 	word typ;
 
-	/*
-	 * Map labels to associated word offset
-	 */
-	std::map<std::string, word> l_list;
-
 public:
 
 	/*
 	 * Instruction constructor
 	 */
-	generic_instr(std::map<std::string, word> &l_list);
+	generic_instr(void);
 
 	/*
 	 * Instruction constructor
@@ -58,12 +53,12 @@ public:
 	/*
 	 * Instruction constructor
 	 */
-	generic_instr(std::map<std::string, word> &l_list, word typ);
+	generic_instr(word typ);
 
 	/*
 	 * Instruction constructor
 	 */
-	generic_instr(std::map<std::string, word> &l_list, word op, word typ);
+	generic_instr(word op, word typ);
 
 	/*
 	 * Instruction destructor

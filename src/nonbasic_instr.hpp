@@ -35,7 +35,7 @@ public:
 	/*
 	 * Non-Basic instruction constructor
 	 */
-	nonbasic_instr(std::map<std::string, word> &l_list);
+	nonbasic_instr(void);
 
 	/*
 	 * Non-Basic instruction constructor
@@ -45,7 +45,7 @@ public:
 	/*
 	 * Non-Basic instruction constructor
 	 */
-	nonbasic_instr(std::map<std::string, word> &l_list, word op);
+	nonbasic_instr(word op);
 
 	/*
 	 * Non-Basic instruction destructor

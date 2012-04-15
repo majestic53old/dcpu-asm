@@ -25,28 +25,28 @@
 /*
  * Instruction constructor
  */
-generic_instr::generic_instr(std::map<std::string, word> &l_list) : op(0), typ(0), l_list(l_list) {
+generic_instr::generic_instr(void) : op(0), typ(0) {
 	return;
 }
 
 /*
  * Instruction constructor
  */
-generic_instr::generic_instr(const generic_instr &other) : op(other.op), typ(other.typ), l_list(other.l_list) {
+generic_instr::generic_instr(const generic_instr &other) : op(other.op), typ(other.typ) {
 	return;
 }
 
 /*
  * Instruction constructor
  */
-generic_instr::generic_instr(std::map<std::string, word> &l_list, word typ) : op(0), typ(typ), l_list(l_list) {
+generic_instr::generic_instr(word typ) : op(0), typ(typ) {
 	return;
 }
 
 /*
  * Instruction constructor
  */
-generic_instr::generic_instr(std::map<std::string, word> &l_list, word op, word typ) : op(op), typ(typ), l_list(l_list) {
+generic_instr::generic_instr(word op, word typ) : op(op), typ(typ) {
 	return;
 }
 
@@ -69,7 +69,6 @@ generic_instr &generic_instr::operator=(const generic_instr &other) {
 	// set attributes
 	op = other.op;
 	typ = other.typ;
-	l_list = other.l_list;
 	return *this;
 }
 
@@ -84,8 +83,7 @@ bool generic_instr::operator==(const generic_instr &other) {
 
 	// check attributes
 	return op == other.op
-			&& typ == other.typ
-			&& l_list == other.l_list;
+			&& typ == other.typ;
 }
 
 /*
