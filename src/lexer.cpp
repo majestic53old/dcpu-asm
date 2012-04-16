@@ -36,7 +36,7 @@ const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_
 /*
  * Register symbols
  */
-const std::string lexer::REG_SYMBOL[REG_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J", "SP", "PC", "O", };
+const std::string lexer::REG_SYMBOL[REG_COUNT] = { "A", "B", "C", "X", "Y", "Z", "I", "J", };
 const std::set<std::string> lexer::REG_SET(REG_SYMBOL, REG_SYMBOL + REG_COUNT);
 
 /*
@@ -44,6 +44,12 @@ const std::set<std::string> lexer::REG_SET(REG_SYMBOL, REG_SYMBOL + REG_COUNT);
  */
 const std::string lexer::ST_OPER_SYMBOL[ST_OPER_COUNT] = { "POP", "PEEK", "PUSH", };
 const std::set<std::string> lexer::ST_OPER_SET(ST_OPER_SYMBOL, ST_OPER_SYMBOL + ST_OPER_COUNT);
+
+/*
+ * System register symbols
+ */
+const std::string lexer::SYS_REG_SYMBOL[REG_COUNT] = { "SP", "PC", "O", };
+const std::set<std::string> lexer::SYS_REG_SET(SYS_REG_SYMBOL, SYS_REG_SYMBOL + SYS_REG_COUNT);
 
 /*
  * Lexer constructor
@@ -172,6 +178,13 @@ bool lexer::is_stack_operation(void) {
 }
 
 /*
+ * Check if token is a system register
+ */
+bool lexer::is_system_register(void) {
+	return SYS_REG_SET.find(txt) != SYS_REG_SET.end();
+}
+
+/*
  * Retreive next token
  */
 void lexer::next(void) {
@@ -228,6 +241,8 @@ void lexer::phrase(void) {
 	// determine type
 	if(is_register())
 		typ = REGISTER;
+	else if(is_system_register())
+		typ = SYS_REGISTER;
 	else if(is_stack_operation())
 		typ = ST_OPER;
 	else if(is_basic_opcode())
@@ -345,6 +360,8 @@ std::string lexer::type_to_string(unsigned char type) {
 		case CLOSE_BRACE: out = "[CLOSE BRACE]";
 			break;
 		case REGISTER: out = "[REGISTER]";
+			break;
+		case SYS_REGISTER: out = "[SYSTEM REGISTER]";
 			break;
 		case LABEL_HEADER: out = "[LABEL HEADER]";
 			break;

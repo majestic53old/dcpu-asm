@@ -58,7 +58,7 @@ private:
 	/*
 	 * Expression
 	 */
-	void expr(void);
+	void expr(generic_instr **instr, word pos);
 
 	/*
 	 * Opcode
@@ -76,9 +76,19 @@ private:
 	void stmt(void);
 
 	/*
+	 * Set an operand in an instruction at a given position
+	 */
+	void set_oper_at_pos(generic_instr **instr, word pos, word oper, word oper_type);
+
+	/*
+	 * Set an operand in an instruction at a given position
+	 */
+	static bool set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, word oper_type);
+
+	/*
 	 * Terminal
 	 */
-	void term(void);
+	void term(generic_instr **instr, word pos);
 
 public:
 
@@ -143,19 +153,24 @@ public:
 	lexer &lex(void);
 
 	/*
+	 * Numeric string to value
+	 */
+	static word numeric_value(const std::string &str, bool hex);
+
+	/*
 	 * Opcode name to value
 	 */
 	static word op_value(const std::string &name);
 
 	/*
-	 * Operand string to value
-	 */
-	static word oper_value(const std::string &str, bool hex);
-
-	/*
 	 * Parse input
 	 */
 	void parse(void);
+
+	/*
+	 * Register string to value
+	 */
+	static word register_value(const std::string &str, bool addition);
 
 	/*
 	 * Reset parser
@@ -166,6 +181,16 @@ public:
 	 * Return parser generated instructions size
 	 */
 	size_t size(void);
+
+	/*
+	 * Stack operation string to value
+	 */
+	static word stack_oper_value(const std::string &str);
+
+	/*
+	 * System register string to value
+	 */
+	static word system_register_value(const std::string &str);
 
 	/*
 	 * Writes generated code to file

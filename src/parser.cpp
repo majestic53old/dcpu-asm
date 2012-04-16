@@ -123,7 +123,14 @@ std::string parser::exception_message(lexer &lex, const std::string &message) {
 /*
  * Expression
  */
-void parser::expr(void) {
+void parser::expr(generic_instr **instr, word pos) {
+
+	// check if instruction is allocated
+	if(!(*instr))
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+	// TODO: set operator type/value based off position (A or B)
+
 	if(le.type() == REGISTER)
 		le.next();
 	else if(le.type() == NUMERIC
@@ -172,6 +179,23 @@ std::map<std::string, word> &parser::label_list(void) {
  */
 lexer &parser::lex(void) {
 	return le;
+}
+
+/*
+ * Operand string to value
+ */
+word parser::numeric_value(const std::string &str, bool hex) {
+	word value;
+	std::stringstream ss;
+
+	// append hex if needed
+	if(hex)
+		ss << std::hex;
+
+	// convert to word
+	ss << str;
+	ss >> value;
+	return value;
 }
 
 /*
@@ -235,33 +259,14 @@ void parser::oper(generic_instr **instr, word pos) {
 	if(!(*instr))
 		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
 
-	// TODO: set operator type/value based off position (A or B)
-
 	if(le.type() == OPEN_BRACE) {
 		le.next();
-		expr();
+		expr(instr, pos);
 		if(le.type() != CLOSE_BRACE)
 			throw std::runtime_error(exception_message(le, "Expecting closing brace ']' before end of operand"));
 		le.next();
 	} else
-		term();
-}
-
-/*
- * Operand string to value
- */
-word parser::oper_value(const std::string &str, bool hex) {
-	word value;
-	std::stringstream ss;
-
-	// append hex if needed
-	if(hex)
-		ss << std::hex;
-
-	// convert to word
-	ss << str;
-	ss >> value;
-	return value;
+		term(instr, pos);
 }
 
 /*
@@ -276,6 +281,35 @@ void parser::parse(void) {
 }
 
 /*
+ * Register string to value
+ */
+word parser::register_value(const std::string &str, bool addition) {
+	word value = A_REG;
+
+	if(str == lexer::REG_SYMBOL[A_REG])
+		value = A_REG;
+	else if(str == lexer::REG_SYMBOL[B_REG])
+		value = B_REG;
+	else if(str == lexer::REG_SYMBOL[C_REG])
+		value = C_REG;
+	else if(str == lexer::REG_SYMBOL[X_REG])
+		value = X_REG;
+	else if(str == lexer::REG_SYMBOL[Y_REG])
+		value = Y_REG;
+	else if(str == lexer::REG_SYMBOL[Z_REG])
+		value = Z_REG;
+	else if(str == lexer::REG_SYMBOL[I_REG])
+		value = I_REG;
+	else if(str == lexer::REG_SYMBOL[J_REG])
+		value = J_REG;
+
+	// add addition offset
+	if(addition)
+		return value + REG_COUNT;
+	return value;
+}
+
+/*
  * Reset parser
  */
 void parser::reset(void) {
@@ -286,10 +320,85 @@ void parser::reset(void) {
 }
 
 /*
+ * Set an operand in an instruction at a given position
+ */
+void parser::set_oper_at_pos(generic_instr **instr, word pos, word oper, word oper_type) {
+	if(!set_oper_at_pos_helper(instr, pos, oper, oper_type))
+		throw std::runtime_error(exception_message(le, "Runtime exception (Failed to generate code at this line)"));
+}
+
+/*
+ * Set an operand in an instruction at a given position
+ */
+bool parser::set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, word oper_type) {
+
+	// check for allocation
+	if(!(*instr))
+		return false;
+
+	switch((*instr)->type()) {
+		case BASIC_OP: {
+				basic_instr *b_instr = dynamic_cast<basic_instr *>(*instr);
+
+				// check for cast
+				if(!b_instr)
+					return false;
+
+				// set oper and type at position
+				switch(pos) {
+					case A_OPER:
+						b_instr->set_a_operand(oper);
+						b_instr->set_a_operand_type(oper_type);
+						break;
+					case B_OPER:
+						b_instr->set_b_operand(oper);
+						b_instr->set_b_operand_type(oper_type);
+						break;
+					default:
+						return false;
+				}
+			} break;
+		case NONBASIC_OP: {
+				nonbasic_instr *nb_instr = dynamic_cast<nonbasic_instr *>(*instr);
+
+				// check for cast
+				if(!nb_instr)
+					return false;
+
+				// set oper and type at position
+				switch(pos) {
+					case A_OPER:
+						nb_instr->set_a_operand(oper);
+						nb_instr->set_a_operand_type(oper_type);
+						break;
+					default:
+						return false;
+				}
+			} break;
+		default:
+			return false;
+	}
+	return true;
+}
+
+/*
  * Return parser generated instruction size
  */
 size_t parser::size(void) {
 	return instructions.size();
+}
+
+/*
+ * Stack operation string to value
+ */
+word parser::stack_oper_value(const std::string &str) {
+	if(str == lexer::ST_OPER_SYMBOL[POP_OPER])
+		return ST_POP;
+	else if(str == lexer::ST_OPER_SYMBOL[PEEK_OPER])
+		return ST_PEEK;
+	else if(str == lexer::ST_OPER_SYMBOL[PUSH_OPER])
+		return ST_PUSH;
+	return 0;
 }
 
 /*
@@ -320,15 +429,49 @@ void parser::stmt(void) {
 }
 
 /*
+ * System register string to value
+ */
+word parser::system_register_value(const std::string &str) {
+	if(str == lexer::SYS_REG_SYMBOL[SP_REG])
+		return SP_VAL;
+	else if(str == lexer::SYS_REG_SYMBOL[PC_REG])
+		return PC_VAL;
+	else if(str == lexer::SYS_REG_SYMBOL[O_REG])
+		return OVER_F;
+	return 0;
+}
+
+/*
  * Terminal
  */
-void parser::term(void) {
-	if(le.type() != NAME
-			&& le.type() != NUMERIC
-			&& le.type() != HEX_NUMERIC
-			&& le.type() != REGISTER
-			&& le.type() != ST_OPER)
-		throw std::runtime_error(exception_message(le, "Invalid operand"));
+void parser::term(generic_instr **instr, word pos) {
+	switch(le.type()) {
+		case NAME: set_oper_at_pos(instr, pos, 0, LIT_OFF);
+			break;
+		case NUMERIC: {
+				word value = numeric_value(le.text(), false);
+				if(value <= LIT_LEN) {
+					value += L_LIT;
+					set_oper_at_pos(instr, pos, value, value);
+				} else
+					set_oper_at_pos(instr, pos, value, LIT_OFF);
+			} break;
+		case HEX_NUMERIC: {
+				word value = numeric_value(le.text(), true);
+				if(value <= LIT_LEN) {
+					value += L_LIT;
+					set_oper_at_pos(instr, pos, value, value);
+				} else
+					set_oper_at_pos(instr, pos, value, LIT_OFF);
+			} break;
+		case REGISTER: set_oper_at_pos(instr, pos, 0, register_value(le.text(), false));
+			break;
+		case SYS_REGISTER: set_oper_at_pos(instr, pos, 0, system_register_value(le.text()));
+			break;
+		case ST_OPER: set_oper_at_pos(instr, pos, 0, stack_oper_value(le.text()));
+			break;
+		default: throw std::runtime_error(exception_message(le, "Invalid operand"));
+	}
 	le.next();
 }
 

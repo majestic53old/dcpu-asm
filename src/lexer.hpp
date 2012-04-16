@@ -70,6 +70,11 @@ private:
 	bool is_stack_operation(void);
 
 	/*
+	 * Check if token is a system register
+	 */
+	bool is_system_register(void);
+
+	/*
 	 * Parse a number from buffer
 	 */
 	void number(void);
@@ -114,6 +119,12 @@ public:
 	 */
 	static const std::string ST_OPER_SYMBOL[ST_OPER_COUNT];
 	static const std::set<std::string> ST_OPER_SET;
+
+	/*
+	 * Register symbols
+	 */
+	static const std::string SYS_REG_SYMBOL[REG_COUNT];
+	static const std::set<std::string> SYS_REG_SET;
 
 	/*
 	 * Misc symbols

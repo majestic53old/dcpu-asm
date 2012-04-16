@@ -59,23 +59,30 @@ enum OPER_POS { A_OPER, B_OPER, };
 enum OPER_TYPE { L_REG, H_REG = 0x07, L_VAL, H_VAL = 0x0F, L_OFF, H_OFF = 0x17,
 	ST_POP, ST_PEEK, ST_PUSH, SP_VAL, PC_VAL, OVER_F, ADR_OFF, LIT_OFF,
 	L_LIT = 0x20, H_LIT = 0x3F, };
+static const word LIT_LEN = 0x31;
 
 /*
  * Supported register types
  */
-enum REGISTER_TYPES { A, B, C, X, Y, Z, I, J, SP, PC, O, };
-static const size_t REG_COUNT = 11;
+enum REGISTER_TYPES { A_REG, B_REG, C_REG, X_REG, Y_REG, Z_REG, I_REG, J_REG, };
+static const size_t REG_COUNT = 8;
 
 /*
  * Supported stack operation types
  */
-enum ST_OPER_TYPES { POP, PEEK, PUSH, };
+enum ST_OPER_TYPES { POP_OPER, PEEK_OPER, PUSH_OPER, };
 static const size_t ST_OPER_COUNT = 3;
+
+/*
+ * Supported system register types
+ */
+enum SYS_REGISTER_TYPES { SP_REG, PC_REG, O_REG, };
+static const size_t SYS_REG_COUNT = 3;
 
 /*
  * Supported token types
  */
-enum TOKEN_TYPE { BEGIN, END, UNKNOWN, ADDITION, CLOSE_BRACE, REGISTER, LABEL_HEADER,
-	NAME, HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, ST_OPER, };
+enum TOKEN_TYPE { BEGIN, END, UNKNOWN, ADDITION, CLOSE_BRACE, REGISTER, SYS_REGISTER,
+	LABEL_HEADER, NAME, HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, ST_OPER, };
 
 #endif
