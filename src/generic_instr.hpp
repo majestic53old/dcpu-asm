@@ -83,7 +83,7 @@ public:
 	/*
 	 * Return instruction code
 	 */
-	virtual std::vector<word> code(void);
+	virtual std::vector<word> code(std::map<std::string, word> &l_list);
 
 	/*
 	 * Return a string representation of code

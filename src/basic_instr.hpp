@@ -20,6 +20,7 @@
 #ifndef BASIC_INSTR_HPP_
 #define BASIC_INSTR_HPP_
 
+#include <string>
 #include "generic_instr.hpp"
 
 class basic_instr : public generic_instr {
@@ -34,6 +35,16 @@ private:
 	 * B operand and type
 	 */
 	word b, b_type;
+
+	/*
+	 * A/B operand label status
+	 */
+	bool a_label, b_label;
+
+	/*
+	 * A/B operand label text
+	 */
+	std::string a_label_txt, b_label_txt;
 
 public:
 
@@ -75,7 +86,12 @@ public:
 	/*
 	 * Return basic instruction code
 	 */
-	std::vector<word> code(void);
+	std::vector<word> code(std::map<std::string, word> &l_list);
+
+	/*
+	 * Return A operand label text
+	 */
+	std::string a_label_text(void);
 
 	/*
 	 * Return A operand value
@@ -88,6 +104,11 @@ public:
 	word a_operand_type(void);
 
 	/*
+	 * Return B operand label text
+	 */
+	std::string b_label_text(void);
+
+	/*
 	 * Return B operand value
 	 */
 	word b_operand(void);
@@ -98,9 +119,24 @@ public:
 	word b_operand_type(void);
 
 	/*
+	 * Return A operand label status
+	 */
+	bool is_a_operand_label(void);
+
+	/*
+	 * Return B operand label status
+	 */
+	bool is_b_operand_label(void);
+
+	/*
 	 * Set A operand value
 	 */
 	void set_a_operand(word a);
+
+	/*
+	 * Set A operand as label
+	 */
+	void set_a_operand_as_label(bool a_label);
 
 	/*
 	 * Set A operand type
@@ -108,9 +144,24 @@ public:
 	void set_a_operand_type(word a_type);
 
 	/*
+	 * Set A operand label text
+	 */
+	void set_a_operand_label(const std::string &a_label_txt);
+
+	/*
 	 * Set B operand value
 	 */
 	void set_b_operand(word b);
+
+	/*
+	 * Set B operand as label
+	 */
+	void set_b_operand_as_label(bool b_label);
+
+	/*
+	 * Set B operand label text
+	 */
+	void set_b_operand_label(const std::string &b_label_txt);
 
 	/*
 	 * Set B operand type
@@ -125,7 +176,7 @@ public:
 	/*
 	 * Return a string representation of basic instruction
 	 */
-	std::string to_string(void);
+	std::string to_string(std::map<std::string, word> &l_list);
 };
 
 #endif

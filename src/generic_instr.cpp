@@ -96,8 +96,8 @@ bool generic_instr::operator!=(const generic_instr &other) {
 /*
  * Return instruction code
  */
-std::vector<word> generic_instr::code(void) {
-	return this->code();
+std::vector<word> generic_instr::code(std::map<std::string, word> &l_list) {
+	return this->code(l_list);
 }
 
 /*

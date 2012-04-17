@@ -81,6 +81,11 @@ private:
 	void set_oper_at_pos(generic_instr **instr, word pos, word oper, word oper_type);
 
 	/*
+	 * Set an operand as a label at a given position
+	 */
+	void set_oper_label_at_pos(generic_instr **instr, word pos, const std::string &label_text);
+
+	/*
 	 * Set an operand in an instruction at a given position
 	 */
 	static bool set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, word oper_type);

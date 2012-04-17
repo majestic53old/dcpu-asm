@@ -18,26 +18,27 @@
  */
 
 #include <sstream>
+#include <stdexcept>
 #include "nonbasic_instr.hpp"
 
 /*
  * Non-Basic instruction constructor
  */
-nonbasic_instr::nonbasic_instr(void) : generic_instr(NONBASIC_OP), a(0), a_type(0) {
+nonbasic_instr::nonbasic_instr(void) : generic_instr(NONBASIC_OP), a(0), a_type(0), a_label(false) {
 	return;
 }
 
 /*
  * Non-Basic instruction constructor
  */
-nonbasic_instr::nonbasic_instr(const nonbasic_instr &other) : generic_instr(other), a(other.a), a_type(other.a_type) {
+nonbasic_instr::nonbasic_instr(const nonbasic_instr &other) : generic_instr(other), a(other.a), a_type(other.a_type), a_label(other.a_label), a_label_txt(other.a_label_txt) {
 	return;
 }
 
 /*
  * Non-Basic instruction constructor
  */
-nonbasic_instr::nonbasic_instr(word op) : generic_instr(op, NONBASIC_OP), a(0), a_type(0) {
+nonbasic_instr::nonbasic_instr(word op) : generic_instr(op, NONBASIC_OP), a(0), a_type(0), a_label(false) {
 	return;
 }
 
@@ -61,6 +62,8 @@ nonbasic_instr &nonbasic_instr::operator=(const nonbasic_instr &other) {
 	generic_instr::operator =(other);
 	a = other.a;
 	a_type = other.a_type;
+	a_label = other.a_label;
+	a_label_txt = other.a_label_txt;
 	return *this;
 }
 
@@ -76,7 +79,9 @@ bool nonbasic_instr::operator==(const nonbasic_instr &other) {
 	// check attributes
 	return generic_instr::operator ==(other)
 			&& a == other.a
-			&& a_type == other.a_type;
+			&& a_type == other.a_type
+			&& a_label == other.a_label
+			&& a_label_txt == other.a_label_txt;
 }
 
 /*
@@ -89,9 +94,18 @@ bool nonbasic_instr::operator!=(const nonbasic_instr &other) {
 /*
  * Return non-basic instruction code
  */
-std::vector<word> nonbasic_instr::code(void) {
+std::vector<word> nonbasic_instr::code(std::map<std::string, word> &l_list) {
 	word instr = 0;
 	std::vector<word> out;
+
+	// set A operand if it is a label
+	if(a_label) {
+		if(l_list.find(a_label_txt) == l_list.end())
+			throw std::runtime_error(std::string("Undeclared label \'" + a_label_txt + "\'"));
+		a = l_list.at(a_label_txt);
+		if(a <= LIT_LEN)
+			a_type = a + L_LIT;
+	}
 
 	// compile instruction
 	for(size_t i = 0; i < WORD_LEN; ++i) {
@@ -122,6 +136,13 @@ std::vector<word> nonbasic_instr::code(void) {
 }
 
 /*
+ * Return A operand label text
+ */
+std::string nonbasic_instr::a_label_text(void) {
+	return a_label_txt;
+}
+
+/*
  * Return A operand value
  */
 word nonbasic_instr::a_operand(void) {
@@ -136,10 +157,31 @@ word nonbasic_instr::a_operand_type(void) {
 }
 
 /*
+ * Return A operand label status
+ */
+bool nonbasic_instr::is_a_operand_label(void) {
+	return a_label;
+}
+
+/*
  * Set A operand value
  */
 void nonbasic_instr::set_a_operand(word a) {
 	this->a = a;
+}
+
+/*
+ * Set A operand as label
+ */
+void nonbasic_instr::set_a_operand_as_label(bool a_label) {
+	this->a_label = a_label;
+}
+
+/*
+ * Set A operand label text
+ */
+void nonbasic_instr::set_a_operand_label(const std::string &a_label_txt) {
+	this->a_label_txt = a_label_txt;
 }
 
 /*
@@ -161,11 +203,11 @@ size_t nonbasic_instr::size(void) {
 /*
  * Return a string representation of non-basic instruction
  */
-std::string nonbasic_instr::to_string(void) {
+std::string nonbasic_instr::to_string(std::map<std::string, word> &l_list) {
 	std::stringstream ss;
 
 	// form string representation
 	ss << generic_instr::to_string() << ": " << std::hex << "0x" << (unsigned)(word) a << " [" << "0x"
-			<< (unsigned)(word) a_type << "], ( " << generic_instr::code_to_string(code()) << ")" << std::endl;
+			<< (unsigned)(word) a_type << "], ( " << generic_instr::code_to_string(code(l_list)) << ")" << std::endl;
 	return ss.str();
 }

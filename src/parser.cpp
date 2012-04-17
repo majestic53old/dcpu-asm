@@ -154,7 +154,7 @@ std::vector<word> parser::generated_code(void) {
 
 	// iterate through instructions
 	for(size_t i = 0; i < instructions.size(); ++i) {
-		code = instructions.at(i)->code();
+		code = instructions.at(i)->code(l_list);
 		gen_code.insert(gen_code.end(), code.begin(), code.end());
 	}
 	return gen_code;
@@ -328,6 +328,56 @@ void parser::set_oper_at_pos(generic_instr **instr, word pos, word oper, word op
 }
 
 /*
+ * Set an operand as a label at a given position
+ */
+void parser::set_oper_label_at_pos(generic_instr **instr, word pos, const std::string &label_text) {
+
+	// check for allocation
+	if(!(*instr))
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+	switch((*instr)->type()) {
+		case BASIC_OP: {
+				basic_instr *b_instr = dynamic_cast<basic_instr *>(*instr);
+
+				// check for cast
+				if(!b_instr)
+					throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+				// set oper and type at position
+				switch(pos) {
+					case A_OPER:
+						b_instr->set_a_operand_as_label(true);
+						b_instr->set_a_operand_label(label_text);
+						break;
+					case B_OPER:
+						b_instr->set_b_operand_as_label(true);
+						b_instr->set_b_operand_label(label_text);
+						break;
+					default: throw std::runtime_error(exception_message(le, "Runtime exception (Invalid position)"));
+				}
+			} break;
+		case NONBASIC_OP: {
+				nonbasic_instr *nb_instr = dynamic_cast<nonbasic_instr *>(*instr);
+
+				// check for cast
+				if(!nb_instr)
+					throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+				// set oper and type at position
+				switch(pos) {
+					case A_OPER:
+						nb_instr->set_a_operand_as_label(true);
+						nb_instr->set_a_operand_label(label_text);
+						break;
+					default: throw std::runtime_error(exception_message(le, "Runtime exception (Invalid position)"));
+				}
+			} break;
+		default: throw std::runtime_error(exception_message(le, "Runtime exception (Invalid opcode type)"));
+	}
+}
+
+/*
  * Set an operand in an instruction at a given position
  */
 bool parser::set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, word oper_type) {
@@ -447,6 +497,7 @@ word parser::system_register_value(const std::string &str) {
 void parser::term(generic_instr **instr, word pos) {
 	switch(le.type()) {
 		case NAME: set_oper_at_pos(instr, pos, 0, LIT_OFF);
+			set_oper_label_at_pos(instr, pos, le.text());
 			break;
 		case NUMERIC: {
 				word value = numeric_value(le.text(), false);

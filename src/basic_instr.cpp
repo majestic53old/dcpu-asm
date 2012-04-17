@@ -24,21 +24,22 @@
 /*
  * Basic instruction constructor
  */
-basic_instr::basic_instr(void) : generic_instr(BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
+basic_instr::basic_instr(void) : generic_instr(BASIC_OP), a(0), a_type(0), b(0), b_type(0), a_label(false), b_label(false) {
 	return;
 }
 
 /*
  * Basic instruction constructor
  */
-basic_instr::basic_instr(const basic_instr &other) : generic_instr(other), a(other.a), a_type(other.a_type), b(other.b), b_type(other.b_type) {
+basic_instr::basic_instr(const basic_instr &other) : generic_instr(other), a(other.a), a_type(other.a_type), b(other.b), b_type(other.b_type), a_label(other.a_label),
+		b_label(other.b_label), a_label_txt(other.a_label_txt), b_label_txt(other.b_label_txt) {
 	return;
 }
 
 /*
  * Basic instruction constructor
  */
-basic_instr::basic_instr(word op) : generic_instr(op, BASIC_OP), a(0), a_type(0), b(0), b_type(0) {
+basic_instr::basic_instr(word op) : generic_instr(op, BASIC_OP), a(0), a_type(0), b(0), b_type(0), a_label(false), b_label(false) {
 	return;
 }
 
@@ -64,6 +65,10 @@ basic_instr &basic_instr::operator=(const basic_instr &other) {
 	a_type = other.a_type;
 	b = other.b;
 	b_type = other.b_type;
+	a_label = other.a_label;
+	b_label = other.b_label;
+	a_label_txt = other.a_label_txt;
+	b_label_txt = other.b_label_txt;
 	return *this;
 }
 
@@ -81,7 +86,11 @@ bool basic_instr::operator==(const basic_instr &other) {
 			&& a == other.a
 			&& a_type == other.a_type
 			&& b == other.b
-			&& b_type == other.b_type;
+			&& b_type == other.b_type
+			&& a_label == other.a_label
+			&& b_label == other.b_label
+			&& a_label_txt == other.a_label_txt
+			&& b_label_txt == other.b_label_txt;
 }
 
 /*
@@ -94,9 +103,27 @@ bool basic_instr::operator!=(const basic_instr &other) {
 /*
  * Return basic instruction code
  */
-std::vector<word> basic_instr::code(void) {
+std::vector<word> basic_instr::code(std::map<std::string, word> &l_list) {
 	word instr = 0;
 	std::vector<word> out;
+
+	// set A operand if it is a label
+	if(a_label) {
+		if(l_list.find(a_label_txt) == l_list.end())
+			throw std::runtime_error(std::string("Undeclared label \'" + a_label_txt + "\'"));
+		a = l_list.at(a_label_txt);
+		if(a <= LIT_LEN)
+			a_type = a + L_LIT;
+	}
+
+	// set B operand if it is a label
+	if(b_label) {
+		if(l_list.find(b_label_txt) == l_list.end())
+			throw std::runtime_error(std::string("Undeclared label \'" + b_label_txt + "\'"));
+		b = l_list.at(b_label_txt);
+		if(b <= LIT_LEN)
+			b_type = b + L_LIT;
+	}
 
 	// iterate through word length
 	for(size_t i = 0; i < WORD_LEN; ++i)
@@ -140,10 +167,24 @@ word basic_instr::a_operand(void) {
 }
 
 /*
+ * Return A operand label text
+ */
+std::string basic_instr::a_label_text(void) {
+	return a_label_txt;
+}
+
+/*
  * Return A operand type
  */
 word basic_instr::a_operand_type(void) {
 	return a_type;
+}
+
+/*
+ * Return B operand label text
+ */
+std::string basic_instr::b_label_text(void) {
+	return b_label_txt;
 }
 
 /*
@@ -161,10 +202,38 @@ word basic_instr::b_operand_type(void) {
 }
 
 /*
+ * Return A operand label status
+ */
+bool basic_instr::is_a_operand_label(void) {
+	return a_label;
+}
+
+/*
+ * Return B operand label status
+ */
+bool basic_instr::is_b_operand_label(void) {
+	return b_label;
+}
+
+/*
  * Set A operand value
  */
 void basic_instr::set_a_operand(word a) {
 	this->a = a;
+}
+
+/*
+ * Set A operand as label
+ */
+void basic_instr::set_a_operand_as_label(bool a_label) {
+	this->a_label = a_label;
+}
+
+/*
+ * Set A operand label text
+ */
+void basic_instr::set_a_operand_label(const std::string &a_label_txt) {
+	this->a_label_txt = a_label_txt;
 }
 
 /*
@@ -179,6 +248,20 @@ void basic_instr::set_a_operand_type(word a_type) {
  */
 void basic_instr::set_b_operand(word b) {
 	this->b = b;
+}
+
+/*
+ * Set B operand as label
+ */
+void basic_instr::set_b_operand_as_label(bool b_label) {
+	this->b_label = b_label;
+}
+
+/*
+ * Set B operand label text
+ */
+void basic_instr::set_b_operand_label(const std::string &b_label_txt) {
+	this->b_label_txt = b_label_txt;
 }
 
 /*
@@ -203,11 +286,11 @@ size_t basic_instr::size(void) {
 /*
  * Return a string representation of basic instruction
  */
-std::string basic_instr::to_string(void) {
+std::string basic_instr::to_string(std::map<std::string, word> &l_list) {
 	std::stringstream ss;
 
 	// form string representation
 	ss << generic_instr::to_string() << ": " << std::hex << "0x" << (unsigned)(word) a << " [" << "0x" << (unsigned)(word) a_type << "], "
-			<< "0x" << (unsigned)(word) b << " [" << "0x" << (unsigned)(word) b_type << "], ( " << generic_instr::code_to_string(code()) << ")" << std::endl;
+			<< "0x" << (unsigned)(word) b << " [" << "0x" << (unsigned)(word) b_type << "], ( " << generic_instr::code_to_string(code(l_list)) << ")" << std::endl;
 	return ss.str();
 }
