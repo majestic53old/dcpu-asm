@@ -59,7 +59,7 @@ enum OPER_POS { A_OPER, B_OPER, };
 enum OPER_TYPE { L_REG, H_REG = 0x07, L_VAL, H_VAL = 0x0F, L_OFF, H_OFF = 0x17,
 	ST_POP, ST_PEEK, ST_PUSH, SP_VAL, PC_VAL, OVER_F, ADR_OFF, LIT_OFF,
 	L_LIT = 0x20, H_LIT = 0x3F, };
-static const word LIT_LEN = 0x31;
+static const word LIT_LEN = 0x1F;
 
 /*
  * Supported register types

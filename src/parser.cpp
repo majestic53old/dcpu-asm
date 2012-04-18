@@ -131,15 +131,21 @@ void parser::expr(generic_instr **instr, word pos) {
 
 	// TODO: set operator type/value based off position (A or B)
 
-	if(le.type() == REGISTER)
+	if(le.type() == REGISTER) {
+		word reg_value = register_value(le.text(), true);
+		set_oper_at_pos(instr, pos, reg_value, reg_value);
 		le.next();
-	else if(le.type() == NUMERIC
+	} else if(le.type() == NUMERIC
 			|| le.type() == HEX_NUMERIC) {
+		word num_value = numeric_value(le.text(), le.type() == HEX_NUMERIC);
+		set_oper_at_pos(instr, pos, num_value, ADR_OFF);
 		le.next();
 		if(le.type() == ADDITION) {
 			le.next();
 			if(le.type() != REGISTER)
 				throw std::runtime_error(exception_message(le, "Expecting register after '+' addition"));
+			word reg_value = register_value(le.text(), false);
+			set_oper_at_pos(instr, pos, num_value, reg_value + L_OFF);
 			le.next();
 		}
 	} else
@@ -501,18 +507,16 @@ void parser::term(generic_instr **instr, word pos) {
 			break;
 		case NUMERIC: {
 				word value = numeric_value(le.text(), false);
-				if(value <= LIT_LEN) {
-					value += L_LIT;
-					set_oper_at_pos(instr, pos, value, value);
-				} else
+				if(value <= LIT_LEN)
+					set_oper_at_pos(instr, pos, value, value + L_LIT);
+				else
 					set_oper_at_pos(instr, pos, value, LIT_OFF);
 			} break;
 		case HEX_NUMERIC: {
 				word value = numeric_value(le.text(), true);
-				if(value <= LIT_LEN) {
-					value += L_LIT;
-					set_oper_at_pos(instr, pos, value, value);
-				} else
+				if(value <= LIT_LEN)
+					set_oper_at_pos(instr, pos, value, value + L_LIT);
+				else
 					set_oper_at_pos(instr, pos, value, LIT_OFF);
 			} break;
 		case REGISTER: set_oper_at_pos(instr, pos, 0, register_value(le.text(), false));
