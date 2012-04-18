@@ -1,12 +1,6 @@
 A simple assembler for use with Notch's dcpu.
 
-A description can be found at: http://0x10c.com/doc/dcpu-16.txt.
-
-This project is far from complete. At the moment, only the lexer is complete. The parser walks over the syntax to check for correctness, but doesn't create the syntax trees at the moment.
-
-TODO:
-	- Generate map of labels while walking over input in parser
-	- Generate code on second traversal
+A description of the dcpu can be found at: http://0x10c.com/doc/dcpu-16.txt.
 
 COMMENTS:
 	- Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. Both have been removed from my implementation.
