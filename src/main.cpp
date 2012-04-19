@@ -28,7 +28,7 @@
 #include "pb_buffer.hpp"
 #include "types.hpp"
 
-static const std::string SOURCE("demo");
+static const std::string SOURCE("fib");
 
 int main(int argc, char *argv[]) {
 	parser par;
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
 	try {
 
-		par = parser(SOURCE);
+		par = parser(SOURCE, true);
 		par.parse();
 
 		std::cout << par.to_string() << std::endl << std::endl << "Writing to file... "

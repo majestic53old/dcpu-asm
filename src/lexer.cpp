@@ -68,7 +68,7 @@ lexer::lexer(const lexer &other) : typ(other.typ), txt(other.txt), buff(other.bu
 /*
  * Lexer constructor
  */
-lexer::lexer(const std::string &path) : typ(BEGIN), buff(pb_buffer(path)) {
+lexer::lexer(const std::string &path, bool is_file) : typ(BEGIN), buff(pb_buffer(path, is_file)) {
 	return;
 }
 

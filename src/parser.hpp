@@ -110,7 +110,7 @@ public:
 	/*
 	 * Parser constructor
 	 */
-	parser(const std::string &path);
+	parser(const std::string &path, bool is_file);
 
 	/*
 	 * Parser destructor

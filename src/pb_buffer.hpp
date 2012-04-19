@@ -62,7 +62,7 @@ public:
 	/*
 	 * Pushback buffer constructor
 	 */
-	pb_buffer(const std::string &path);
+	pb_buffer(const std::string &path, bool is_file);
 
 	/*
 	 * Pushback buffer destructor

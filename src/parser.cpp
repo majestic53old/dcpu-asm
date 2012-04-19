@@ -42,7 +42,7 @@ parser::parser(const parser &other) : le(other.le), pos(other.pos), instructions
 /*
  * Parser constructor
  */
-parser::parser(const std::string &path) : le(lexer(path)), pos(0) {
+parser::parser(const std::string &path, bool is_file) : le(lexer(path, is_file)), pos(0) {
 	return;
 }
 

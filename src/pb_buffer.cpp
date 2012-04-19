@@ -39,11 +39,14 @@ pb_buffer::pb_buffer(const pb_buffer &other) {
 /*
  * Pushback buffer constructor
  */
-pb_buffer::pb_buffer(const std::string &path) : ch(0), ln(1) {
-	std::ifstream file(path.c_str(), std::ios::in);
-	if(!file.is_open())
-		throw std::runtime_error(std::string(path + " (file not found)"));
-	buff << file.rdbuf();
+pb_buffer::pb_buffer(const std::string &path, bool is_file) : ch(0), ln(1) {
+	if(is_file) {
+		std::ifstream file(path.c_str(), std::ios::in);
+		if(!file.is_open())
+			throw std::runtime_error(std::string(path + " (file not found)"));
+		buff << file.rdbuf();
+	} else
+		buff << path;
 	reset();
 }
 

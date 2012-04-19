@@ -150,7 +150,7 @@ public:
 	/*
 	 * Lexer constructor
 	 */
-	lexer(const std::string &path);
+	lexer(const std::string &path, bool is_file);
 
 	/*
 	 * Lexer destructor
