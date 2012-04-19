@@ -28,7 +28,7 @@
 #include "pb_buffer.hpp"
 #include "types.hpp"
 
-static const std::string SOURCE("fib");
+static const std::string SOURCE("demo");
 
 int main(int argc, char *argv[]) {
 	parser par;
