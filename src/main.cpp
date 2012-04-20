@@ -28,28 +28,76 @@
 #include "pb_buffer.hpp"
 #include "types.hpp"
 
-static const std::string SOURCE("demo");
+/*
+ * Supported input flags
+ */
+enum FLAG { NONE, OUTPUT, INPUT };
+
+/*
+ * Determine if an input is a flag
+ */
+int is_flag(const std::string &flag) {
+	if(flag == "-o")
+		return OUTPUT;
+	else if(flag == "-p")
+		return INPUT;
+	return NONE;
+}
 
 int main(int argc, char *argv[]) {
 	parser par;
+	int input = NONE, output = NONE;
 
-	std::cout << "DCPU-ASM (source file: \'" << SOURCE << "\')" << std::endl << std::endl;
+	if(argc < 2) {
+		std::cerr << "Usage: " << argv[0] << " [-o PATH] -p PATH..." << std::endl;
+		return 1;
+	}
+
+	for(int i = 1; i < argc; ++i)
+		switch(is_flag(argv[i])) {
+			case OUTPUT:
+				if(i == (argc - 1)) {
+					std::cerr << "Exception: Parameter \'-o\' missing operand" << std::endl;
+					return 1;
+				}
+				output = ++i;
+				break;
+			case INPUT:
+				if(i == (argc - 1)) {
+					std::cerr << "Exception: Parameter \'-p\' missing operand" << std::endl;
+					return 1;
+				}
+				input = ++i;
+				break;
+			default: std::cerr << "Exception: Invalid parameter \'" << argv[i] << "\'" << std::endl;
+				return 1;
+		}
+
+	// check if input path was given
+	if(!input) {
+		std::cerr << "Exception: No input path specified" << std::endl;
+		return 1;
+	}
 
 	try {
 
-		par = parser(SOURCE, true);
+		// parse and generate code
+		par = parser(argv[input], true);
 		par.parse();
 
-		std::cout << par.to_string() << std::endl << std::endl << "Writing to file... "
-				<< (par.to_file(std::string(SOURCE + ".bin")) ? "Successful." : "Failed!") << std::endl;
-
+		// check if output path was given
+		if(!output) {
+			std::string path = argv[input] + std::string(".bin");
+			if(!par.to_file(path))
+				std::cerr << "Failed to write output to path \'" << path << "\'" << std::endl;
+		} else {
+			if(!par.to_file(argv[output]))
+				std::cerr << "Failed to write output to path \'" << argv[output] << "\'" << std::endl;
+		}
 	} catch(std::runtime_error &exc) {
 		std::cerr << "Exception: " << exc.what() << std::endl;
 		par.cleanup();
 		return 1;
 	}
-
-	std::cout << "Done." << std::endl;
-
 	return 0;
 }

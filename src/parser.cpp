@@ -128,9 +128,6 @@ void parser::expr(generic_instr **instr, word pos) {
 	// check if instruction is allocated
 	if(!(*instr))
 		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
-
-	// TODO: set operator type/value based off position (A or B)
-
 	if(le.type() == REGISTER) {
 		word reg_value = register_value(le.text(), true);
 		set_oper_at_pos(instr, pos, reg_value, reg_value);

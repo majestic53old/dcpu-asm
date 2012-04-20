@@ -103,8 +103,8 @@ std::vector<word> nonbasic_instr::code(std::map<std::string, word> &l_list) {
 		if(l_list.find(a_label_txt) == l_list.end())
 			throw std::runtime_error(std::string("Undeclared label \'" + a_label_txt + "\'"));
 		a = l_list.at(a_label_txt);
-		if(a <= LIT_LEN)
-			a_type = a + L_LIT;
+		//if(a <= LIT_LEN)
+			//a_type = a + L_LIT;
 	}
 
 	// compile instruction

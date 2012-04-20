@@ -112,8 +112,8 @@ std::vector<word> basic_instr::code(std::map<std::string, word> &l_list) {
 		if(l_list.find(a_label_txt) == l_list.end())
 			throw std::runtime_error(std::string("Undeclared label \'" + a_label_txt + "\'"));
 		a = l_list.at(a_label_txt);
-		if(a <= LIT_LEN)
-			a_type = a + L_LIT;
+		//if(a <= LIT_LEN)
+			//a_type = a + L_LIT;
 	}
 
 	// set B operand if it is a label
@@ -121,8 +121,8 @@ std::vector<word> basic_instr::code(std::map<std::string, word> &l_list) {
 		if(l_list.find(b_label_txt) == l_list.end())
 			throw std::runtime_error(std::string("Undeclared label \'" + b_label_txt + "\'"));
 		b = l_list.at(b_label_txt);
-		if(b <= LIT_LEN)
-			b_type = b + L_LIT;
+		//if(b <= LIT_LEN)
+			//b_type = b + L_LIT;
 	}
 
 	// iterate through word length

@@ -2,7 +2,7 @@
 # Copyright (C) 2012 David Jolly
 
 CC=g++
-APP=asm
+APP=dcpu-asm
 MAIN=main
 SRC=src/
 FLAG=-std=c++0x -O3 -funroll-all-loops
