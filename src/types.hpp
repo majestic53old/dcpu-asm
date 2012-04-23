@@ -50,7 +50,7 @@ static const word NB_OPER_LEN = 0x06;
 /*
  * Supported opcode types
  */
-enum OP_TYPE { BASIC_OP, NONBASIC_OP, };
+enum OP_TYPE { BASIC_OP, NONBASIC_OP, PREPROCESS };
 enum OPER_POS { A_OPER, B_OPER, };
 
 /*
@@ -68,6 +68,12 @@ enum REGISTER_TYPES { A_REG, B_REG, C_REG, X_REG, Y_REG, Z_REG, I_REG, J_REG, };
 static const size_t REG_COUNT = 8;
 
 /*
+ * Supported preprocessor types
+ */
+enum PREPROC_TYPES { DAT, };
+static const size_t PREPROC_COUNT = 1;
+
+/*
  * Supported stack operation types
  */
 enum ST_OPER_TYPES { POP_OPER, PEEK_OPER, PUSH_OPER, };
@@ -83,6 +89,7 @@ static const size_t SYS_REG_COUNT = 3;
  * Supported token types
  */
 enum TOKEN_TYPE { BEGIN, END, UNKNOWN, ADDITION, CLOSE_BRACE, REGISTER, SYS_REGISTER,
-	LABEL_HEADER, NAME, HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, ST_OPER, };
+	LABEL_HEADER, NAME, HEX_NUMERIC, NUMERIC, B_OP, NB_OP, OPEN_BRACE, SEPERATOR, ST_OPER,
+	STRING, PREPROC, };
 
 #endif

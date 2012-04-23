@@ -60,6 +60,11 @@ private:
 	bool is_non_basic_opcode(void);
 
 	/*
+	 * Check if a token is a preprocessor
+	 */
+	bool is_preprocessor(void);
+
+	/*
 	 * Check if token is a register
 	 */
 	bool is_register(void);
@@ -94,6 +99,11 @@ private:
 	 */
 	void symbol(void);
 
+	/*
+	 * Convert string to uppercase
+	 */
+	static std::string to_uppercase(const std::string &str);
+
 public:
 
 	/*
@@ -107,6 +117,12 @@ public:
 	 */
 	static const std::string NB_OP_SYMBOL[NB_OP_COUNT];
 	static const std::set<std::string> NB_OP_SET;
+
+	/*
+	 * Preprocessor symbols
+	 */
+	static const std::string PREPROC_SYMBOL[PREPROC_COUNT];
+	static const std::set<std::string> PREPROC_SET;
 
 	/*
 	 * Register symbols
@@ -136,6 +152,8 @@ public:
 	static const char L_HEADER = ':';
 	static const char O_BRACE = '[';
 	static const char SEP = ',';
+	static const char QUOTE = '"';
+	static const char UNDERSCORE = '_';
 
 	/*
 	 * Lexer constructor

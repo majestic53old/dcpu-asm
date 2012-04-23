@@ -26,6 +26,7 @@
 #include "nonbasic_instr.hpp"
 #include "parser.hpp"
 #include "pb_buffer.hpp"
+#include "preproc_instr.hpp"
 #include "types.hpp"
 
 /*
@@ -45,6 +46,19 @@ int is_flag(const std::string &flag) {
 }
 
 int main(int argc, char *argv[]) {
+
+	/*lexer lex;
+	try {
+		lex = lexer(argv[2], true);
+		while(lex.has_next()) {
+			std::cout << lex.to_string() << std::endl;
+			lex.next();
+		}
+	} catch(std::runtime_error &exc) {
+		std::cerr << "Exception: " << exc.what() << std::endl;
+		return 1;
+	}*/
+
 	parser par;
 	int input = NONE, output = NONE;
 

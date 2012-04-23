@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <sstream>
 #include "lexer.hpp"
 
@@ -32,6 +33,12 @@ const std::set<std::string> lexer::B_OP_SET(B_OP_SYMBOL, B_OP_SYMBOL + B_OP_COUN
  */
 const std::string lexer::NB_OP_SYMBOL[NB_OP_COUNT] = { "", "JSR", };
 const std::set<std::string> lexer::NB_OP_SET(NB_OP_SYMBOL, NB_OP_SYMBOL + NB_OP_COUNT);
+
+/*
+ * Preprocessor symbols
+ */
+const std::string lexer::PREPROC_SYMBOL[PREPROC_COUNT] = { "DAT", };
+const std::set<std::string> lexer::PREPROC_SET(PREPROC_SYMBOL, PREPROC_SYMBOL + PREPROC_COUNT);
 
 /*
  * Register symbols
@@ -142,8 +149,7 @@ bool lexer::has_next(void) {
  * Check if token is an opcode
  */
 bool lexer::is_basic_opcode(void) {
-	return (!txt.empty())
-			&& B_OP_SET.find(txt) != B_OP_SET.end();
+	return B_OP_SET.find(to_uppercase(txt)) != B_OP_SET.end();
 }
 
 /*
@@ -159,29 +165,35 @@ bool lexer::is_hex(char ch) {
  * Check if a token is a non-basic opcode
  */
 bool lexer::is_non_basic_opcode(void) {
-	return (!txt.empty())
-			&& NB_OP_SET.find(txt) != NB_OP_SET.end();
+	return NB_OP_SET.find(to_uppercase(txt)) != NB_OP_SET.end();
+}
+
+/*
+ * Check if a token is a preprocessor
+ */
+bool lexer::is_preprocessor(void) {
+	return PREPROC_SET.find(to_uppercase(txt)) != PREPROC_SET.end();
 }
 
 /*
  * Check if token is a register
  */
 bool lexer::is_register(void) {
-	return REG_SET.find(txt) != REG_SET.end();
+	return REG_SET.find(to_uppercase(txt)) != REG_SET.end();
 }
 
 /*
  * Check if token is a stack operation
  */
 bool lexer::is_stack_operation(void) {
-	return ST_OPER_SET.find(txt) != ST_OPER_SET.end();
+	return ST_OPER_SET.find(to_uppercase(txt)) != ST_OPER_SET.end();
 }
 
 /*
  * Check if token is a system register
  */
 bool lexer::is_system_register(void) {
-	return SYS_REG_SET.find(txt) != SYS_REG_SET.end();
+	return SYS_REG_SET.find(to_uppercase(txt)) != SYS_REG_SET.end();
 }
 
 /*
@@ -236,7 +248,8 @@ void lexer::phrase(void) {
 	do {
 		txt += ch;
 	} while(buff >> ch
-			&& isalnum(ch));
+			&& (isalnum(ch)
+					|| ch == UNDERSCORE));
 
 	// determine type
 	if(is_register())
@@ -249,8 +262,15 @@ void lexer::phrase(void) {
 		typ = B_OP;
 	else if(is_non_basic_opcode())
 		typ = NB_OP;
+	else if(is_preprocessor())
+		typ = PREPROC;
 	else
 		typ = NAME;
+
+	// upcase all tokens except name
+	if(typ != NAME
+			&& typ != UNKNOWN)
+		txt = to_uppercase(txt);
 }
 
 /*
@@ -309,6 +329,15 @@ void lexer::symbol(void) {
 		case SEP: txt += ch;
 			typ = SEPERATOR;
 			break;
+		case QUOTE:
+			do {
+				buff.next(ch);
+				if(ch != QUOTE)
+					txt += ch;
+			} while(buff.good()
+					&& ch != QUOTE);
+				typ = STRING;
+			break;
 		default: txt += ch;
 				typ = UNKNOWN;
 			break;
@@ -334,6 +363,15 @@ std::string lexer::to_string(void) {
 	if(!txt.empty())
 		ss << " " << txt;
 	return ss.str();
+}
+
+/*
+ * Convert string to uppercase
+ */
+std::string lexer::to_uppercase(const std::string &str) {
+	std::string trans_txt = str;
+	std::transform(trans_txt.begin(), trans_txt.end(), trans_txt.begin(), ::toupper);
+	return trans_txt;
 }
 
 /*
@@ -380,6 +418,10 @@ std::string lexer::type_to_string(unsigned char type) {
 		case SEPERATOR: out = "[SEPERATOR]";
 			break;
 		case ST_OPER: out = "[STACK OPERATION]";
+			break;
+		case STRING: out = "[STRING]";
+			break;
+		case PREPROC: out = "[PREPROCESSOR]";
 			break;
 		default: out = "[UNKNOWN]";
 			break;

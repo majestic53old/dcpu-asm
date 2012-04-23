@@ -146,6 +146,14 @@ std::string generic_instr::opcode_to_string(word op, word type) {
 			else
 				out = lexer::NB_OP_SYMBOL[op];
 			break;
+
+		// search preprocessor for match
+		case PREPROCESS:
+			if(op >= PREPROC_COUNT)
+				out = "UNKNOWN";
+			else
+				out = lexer::PREPROC_SYMBOL[op];
+			break;
 	}
 	return out;
 }
@@ -200,6 +208,8 @@ std::string generic_instr::type_to_string(word type) {
 		case BASIC_OP: out = "[BASIC OPCODE]";
 			break;
 		case NONBASIC_OP: out = "[NON BASIC OPCODE]";
+			break;
+		case PREPROCESS: out = "[PREPROCESSOR]";
 			break;
 		default: out = "[UNKNOWN OPCODE]";
 			break;

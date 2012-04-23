@@ -51,6 +51,16 @@ private:
 	std::map<std::string, word> l_list;
 
 	/*
+	 * Dat expression
+	 */
+	void dat_expr(generic_instr **instr);
+
+	/*
+	 * Dat terminal
+	 */
+	void dat_term(generic_instr **instr);
+
+	/*
 	 * Return a string representation of an exception
 	 */
 	static std::string exception_message(lexer &lex, const std::string &message);
@@ -69,6 +79,11 @@ private:
 	 * Operand
 	 */
 	void oper(generic_instr **instr, word pos);
+
+	/*
+	 * Preprocessor
+	 */
+	void preproc(generic_instr **instr);
 
 	/*
 	 * Statement
@@ -171,6 +186,11 @@ public:
 	 * Parse input
 	 */
 	void parse(void);
+
+	/*
+	 * Preprocessor name to value
+	 */
+	static word preproc_value(const std::string &name);
 
 	/*
 	 * Register string to value

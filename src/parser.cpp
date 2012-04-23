@@ -17,12 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
+
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
 #include "basic_instr.hpp"
 #include "nonbasic_instr.hpp"
+#include "preproc_instr.hpp"
 #include "parser.hpp"
 
 /*
@@ -110,6 +113,44 @@ void parser::cleanup(void) {
 }
 
 /*
+ * Dat expression
+ */
+void parser::dat_expr(generic_instr **instr) {
+
+	// check if instruction is allocated
+	if(!(*instr))
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+	dat_term(instr);
+	if(le.type() == SEPERATOR) {
+		le.next();
+		dat_expr(instr);
+	}
+}
+
+/*
+ * Dat terminal
+ */
+void parser::dat_term(generic_instr **instr) {
+	preproc_instr *p_instr = dynamic_cast<preproc_instr *>(*instr);
+
+	// check for cast
+	if(!p_instr)
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+	// add value appropriatly
+	switch(le.type()) {
+		case NUMERIC:
+		case HEX_NUMERIC: p_instr->add_word(numeric_value(le.text(), (le.type() == HEX_NUMERIC) ? true : false));
+			break;
+		case STRING: p_instr->add_string(le.text());
+			break;
+		default: throw std::runtime_error(exception_message(le, "Invalid data type (must be number or string)"));
+			break;
+	}
+	le.next();
+}
+
+/*
  * Return a string representation of an exception
  */
 std::string parser::exception_message(lexer &lex, const std::string &message) {
@@ -143,6 +184,18 @@ void parser::expr(generic_instr **instr, word pos) {
 				throw std::runtime_error(exception_message(le, "Expecting register after '+' addition"));
 			word reg_value = register_value(le.text(), false);
 			set_oper_at_pos(instr, pos, num_value, reg_value + L_OFF);
+			le.next();
+		}
+	} else if(le.type() == NAME) {
+		set_oper_at_pos(instr, pos, 0, ADR_OFF);
+		set_oper_label_at_pos(instr, pos, le.text());
+		le.next();
+		if(le.type() == ADDITION) {
+			le.next();
+			if(le.type() != REGISTER)
+				throw std::runtime_error(exception_message(le, "Expecting register after '+' addition"));
+			word reg_value = register_value(le.text(), false);
+			set_oper_at_pos(instr, pos, 0, reg_value + L_OFF);
 			le.next();
 		}
 	} else
@@ -212,7 +265,7 @@ void parser::op(generic_instr **instr) {
 		(*instr) = NULL;
 	}
 
-	// check for opcode
+	// check for opcode or preprocessor
 	switch(le.type()) {
 		case B_OP:
 			*instr = new basic_instr(op_value(le.text()));
@@ -232,7 +285,14 @@ void parser::op(generic_instr **instr) {
 			le.next();
 			oper(instr, A_OPER);
 			break;
-		default: throw std::runtime_error(exception_message(le, "Expecting opcode"));
+		case PREPROC:
+			*instr = new preproc_instr(preproc_value(le.text()));
+			if(!instr)
+				throw std::runtime_error(exception_message(le, "Runtime exception (insufficient resources)"));
+			le.next();
+			preproc(instr);
+			break;
+		default: throw std::runtime_error(exception_message(le, "Expecting opcode or preprocessor"));
 	}
 }
 
@@ -261,7 +321,6 @@ void parser::oper(generic_instr **instr, word pos) {
 	// check if instruction is allocated
 	if(!(*instr))
 		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
-
 	if(le.type() == OPEN_BRACE) {
 		le.next();
 		expr(instr, pos);
@@ -284,11 +343,39 @@ void parser::parse(void) {
 }
 
 /*
+ * Preprocessor
+ */
+void parser::preproc(generic_instr **instr) {
+
+	// check if instruction is allocated
+	if(!(*instr))
+		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+
+	// redirect based off preprocessor type
+	switch((*instr)->opcode()) {
+	case DAT:
+		dat_expr(instr);
+		break;
+	default: throw std::runtime_error(exception_message(le, "Invalid preprocessor"));
+		break;
+	}
+}
+
+/*
+ * Preprocessor name to value
+ */
+word parser::preproc_value(const std::string &name) {
+	word value = (word) -1;
+	if(name == lexer::PREPROC_SYMBOL[DAT])
+		value = DAT;
+	return value;
+}
+
+/*
  * Register string to value
  */
 word parser::register_value(const std::string &str, bool addition) {
 	word value = A_REG;
-
 	if(str == lexer::REG_SYMBOL[A_REG])
 		value = A_REG;
 	else if(str == lexer::REG_SYMBOL[B_REG])
@@ -338,7 +425,6 @@ void parser::set_oper_label_at_pos(generic_instr **instr, word pos, const std::s
 	// check for allocation
 	if(!(*instr))
 		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
-
 	switch((*instr)->type()) {
 		case BASIC_OP: {
 				basic_instr *b_instr = dynamic_cast<basic_instr *>(*instr);
@@ -388,7 +474,6 @@ bool parser::set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, 
 	// check for allocation
 	if(!(*instr))
 		return false;
-
 	switch((*instr)->type()) {
 		case BASIC_OP: {
 				basic_instr *b_instr = dynamic_cast<basic_instr *>(*instr);

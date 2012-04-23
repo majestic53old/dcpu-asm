@@ -135,6 +135,7 @@ public:
 	 */
 	friend class basic_instr;
 	friend class nonbasic_instr;
+	friend class preproc_instr;
 };
 
 #endif
