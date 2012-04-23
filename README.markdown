@@ -15,6 +15,7 @@ Syntax
 
 Here's the simplified BNF the parser uses (starts at stmt):
 
+```
 b_op ::= SET | ADD | SUB | MUL | DIV | MOD | SHL | SHR | AND | BOR | XOR | IFE | IFN | IFG | IFB
 
 preproc ::= dat <dat_expr>
@@ -42,3 +43,4 @@ stmt ::= <op> | : <name> <op>
 sys_reg ::= SP | PC | O
 
 term ::= <name> | <num> | <reg> | <sys_reg> | <st_op>
+```
