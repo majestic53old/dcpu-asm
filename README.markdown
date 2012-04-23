@@ -22,7 +22,7 @@ preproc ::= DAT <dat_expr>
 
 dat_expr ::= <dat_term> , <dat_expr> | <dat_term>
 
-dat_term ::= <num> | <string>
+dat_term ::= <name> | <num> | <string>
 
 expr ::= <name> + <reg> | <num> + <reg> | <name> | <num> | <reg>
 

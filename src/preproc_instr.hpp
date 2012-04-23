@@ -28,9 +28,23 @@ class preproc_instr : public generic_instr {
 private:
 
 	/*
+	 * Preprocessor value structure
+	 */
+	typedef struct _preproc_value {
+		bool is_label;
+		std::string label;
+		word value;
+	} preproc_value;
+
+	/*
 	 * Preprocessed values
 	 */
-	std::vector<word> value;
+	std::vector<preproc_value> value;
+
+	/*
+	 * Compare two preprocessor value structures
+	 */
+	static bool compare_preproc_value(const preproc_value &a, const preproc_value &b);
 
 public:
 
@@ -68,6 +82,11 @@ public:
 	 * Preprocessor instruction not-equals operator
 	 */
 	bool operator!=(const preproc_instr &other);
+
+	/*
+	 * Add a name to preprocess list
+	 */
+	void add_name(const std::string &str);
 
 	/*
 	 * Add a string to preprocess list

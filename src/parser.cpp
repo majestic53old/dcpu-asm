@@ -142,9 +142,11 @@ void parser::dat_term(generic_instr **instr) {
 		case NUMERIC:
 		case HEX_NUMERIC: p_instr->add_word(numeric_value(le.text(), (le.type() == HEX_NUMERIC) ? true : false));
 			break;
+		case NAME: p_instr->add_name(le.text());
+			break;
 		case STRING: p_instr->add_string(le.text());
 			break;
-		default: throw std::runtime_error(exception_message(le, "Invalid data type (must be number or string)"));
+		default: throw std::runtime_error(exception_message(le, "Invalid data type (must be label, number or string)"));
 			break;
 	}
 	le.next();

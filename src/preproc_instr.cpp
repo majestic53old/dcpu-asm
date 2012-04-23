@@ -74,8 +74,13 @@ bool preproc_instr::operator==(const preproc_instr &other) {
 		return true;
 
 	// check attributes
-	return generic_instr::operator ==(other)
-			&& value == other.value;
+	if(generic_instr::operator !=(other)
+			|| value.size() != other.value.size())
+		return false;
+	for(size_t i = 0; i < value.size(); ++i)
+		if(!compare_preproc_value(value.at(i), other.value.at(i)))
+			return false;
+	return true;
 }
 
 /*
@@ -86,18 +91,36 @@ bool preproc_instr::operator!=(const preproc_instr &other) {
 }
 
 /*
+ * Add a name to preprocess list
+ */
+void preproc_instr::add_name(const std::string &str) {
+	preproc_value val;
+	val.is_label = true;
+	val.label = str;
+	val.value = 0;
+	value.push_back(val);
+}
+
+/*
  * Add a string to preprocess list
  */
 void preproc_instr::add_string(const std::string &str) {
-	for(size_t i = 0; i < str.size(); ++i)
-		value.push_back((word) str.at(i));
+	for(size_t i = 0; i < str.size(); ++i) {
+		preproc_value val;
+		val.is_label = false;
+		val.value = (word) str.at(i);
+		value.push_back(val);
+	}
 }
 
 /*
  * Add a word to preprocess list
  */
 void preproc_instr::add_word(word value) {
-	this->value.push_back(value);
+	preproc_value val;
+	val.is_label = false;
+	val.value = value;
+	this->value.push_back(val);
 }
 
 /*
@@ -111,7 +134,28 @@ void preproc_instr::clear(void) {
  * Return preprocessor instruction code
  */
 std::vector<word> preproc_instr::code(std::map<std::string, word> &l_list) {
-	return value;
+	std::vector<word> out;
+
+	// iterate through proprocessor structures
+	for(size_t i = 0; i < value.size(); ++i) {
+		if(value.at(i).is_label) {
+			std::string lbl = value.at(i).label;
+			if(l_list.find(lbl) == l_list.end())
+				throw std::runtime_error(std::string("Undeclared label \'" + lbl + "\'"));
+			value.at(i).value = l_list.at(lbl);
+		}
+		out.push_back(value.at(i).value);
+	}
+	return out;
+}
+
+/*
+ * Compare two preprocessor value structures
+ */
+bool preproc_instr::compare_preproc_value(const preproc_value &a, const preproc_value &b) {
+	return a.is_label == b.is_label
+			&& a.label == b.label
+			&& a.value == b.value;
 }
 
 /*
@@ -130,10 +174,15 @@ std::string preproc_instr::to_string(void) {
 	// form string representation
 	ss << generic_instr::to_string() << " (" << size() << "): ";
 	if(!value.empty()) {
-		ss << "{ ";
-		for(size_t i = 0; i < value.size(); ++i)
-				ss << std::hex << "0x" << (unsigned)(word) value.at(i) << ", ";
-			ss << "}";
+		ss << "{" << std::endl;
+		for(size_t i = 0; i < value.size(); ++i) {
+			ss << "\t{ " << std::hex << "0x" << (unsigned)(word) value.at(i).value;
+			if(value.at(i).is_label) {
+				ss << ", " << value.at(i).label;
+			}
+			ss << " }," << std::endl;
+		}
+		ss << "}";
 	}
 	return ss.str();
 }
