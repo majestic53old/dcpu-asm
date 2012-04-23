@@ -3,25 +3,35 @@ A simple assembler for use with Notch's dcpu.
 A description of the dcpu can be found at: http://0x10c.com/doc/dcpu-16.txt.
 
 COMMENTS:
-	- Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. Both have been removed from my implementation.
+	- Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. Both have been added to my implementation.
 
 SYNTAX:
-	- Here's the simplified BNF the parser uses.
-
-	stmt ::= <op> | : <name> <op>
-
-	op ::= <b_op> <oper> , <oper> | <nb_op> <oper>
+	- Here's the simplified BNF the parser uses (starts at stmt).
 
 	b_op ::= SET | ADD | SUB | MUL | DIV | MOD | SHL | SHR | AND | BOR | XOR | IFE | IFN | IFG | IFB
 
+	preproc ::=	dat <dat_expr>
+
+	dat_expr ::= <dat_term> , <dat_expr> | <dat_term>
+
+	dat_term ::= <num> | <string>
+
+	expr ::= <name> + <reg> | <num> + <reg> | <name> | <num> | <reg>
+
 	nb_op ::= JSR
 
-	reg ::= A | B | C | X | Y | Z | I | J | PC | SP | O
+	num	::=	<numeric> | <hex_numeric>
 
-	st_op ::= PUSH | POP | PEEK
+	op ::= <b_op> <oper> , <oper> | <nb_op> <oper> | <preproc>
 
 	oper ::= [ <expr> ] | <term>
 
-	expr ::= <numeric> + <reg> | <hex_numeric> + <reg> | <numeric> | <hex_numeric> | <reg>
+	reg ::= A | B | C | X | Y | Z | I | J
 
-	term ::= <name> | <numeric> | <hex_numeric> | <reg> | <st_op>
+	st_op ::= POP | PEEK | PUSH
+
+	stmt ::= <op> | : <name> <op>
+
+	sys_reg ::= SP | PC | O
+
+	term ::= <name> | <num> | <reg> | <sys_reg> | <st_op>
