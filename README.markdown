@@ -18,7 +18,7 @@ Here's the simplified BNF the parser uses (starts at stmt):
 ```
 b_op ::= SET | ADD | SUB | MUL | DIV | MOD | SHL | SHR | AND | BOR | XOR | IFE | IFN | IFG | IFB
 
-preproc ::= dat <dat_expr>
+preproc ::= DAT <dat_expr>
 
 dat_expr ::= <dat_term> , <dat_expr> | <dat_term>
 
