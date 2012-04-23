@@ -7,14 +7,14 @@ A description of the dcpu can be found at: http://0x10c.com/doc/dcpu-16.txt.
 
 Comments
 ========
-	- Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. Both have been added to my implementation.
+
+Not sure if strings are in the spec or not. Notch's earlier examples showed the use of strings, as well as a "DAT" tag. Both have been added to my implementation.
 
 Syntax
 ======
 
 Here's the simplified BNF the parser uses (starts at stmt):
 
-<code>
 b_op ::= SET | ADD | SUB | MUL | DIV | MOD | SHL | SHR | AND | BOR | XOR | IFE | IFN | IFG | IFB
 
 preproc ::= dat <dat_expr>
@@ -42,4 +42,3 @@ stmt ::= <op> | : <name> <op>
 sys_reg ::= SP | PC | O
 
 term ::= <name> | <num> | <reg> | <sys_reg> | <st_op>
-</code>
