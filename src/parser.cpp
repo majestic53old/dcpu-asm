@@ -556,14 +556,15 @@ void parser::stmt(void) {
 		// insert label into label map
 		l_list.insert(std::pair<std::string, word>(le.text(), pos));
 		le.next();
-	}
+	} else {
 
-	// build instruction
-	op(&instr);
-	if(!instr)
-		throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
-	pos += instr->size();
-	instructions.push_back(instr);
+		// build instruction
+		op(&instr);
+		if(!instr)
+			throw std::runtime_error(exception_message(le, "Runtime exception (resources unallocated)"));
+		pos += instr->size();
+		instructions.push_back(instr);
+	}
 }
 
 /*

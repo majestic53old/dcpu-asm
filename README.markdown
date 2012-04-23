@@ -38,7 +38,7 @@ reg ::= A | B | C | X | Y | Z | I | J
 
 st_op ::= POP | PEEK | PUSH
 
-stmt ::= <op> | : <name> <op>
+stmt ::= <op> | : <name>
 
 sys_reg ::= SP | PC | O
 
