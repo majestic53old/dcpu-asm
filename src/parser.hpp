@@ -71,9 +71,19 @@ private:
 	void expr(generic_instr **instr, word pos);
 
 	/*
+	 * Numeric string to value
+	 */
+	static word numeric_value(const std::string &str, bool hex);
+
+	/*
 	 * Opcode
 	 */
 	void op(generic_instr **instr);
+
+	/*
+	 * Opcode name to value
+	 */
+	static word op_value(const std::string &name);
 
 	/*
 	 * Operand
@@ -86,9 +96,14 @@ private:
 	void preproc(generic_instr **instr);
 
 	/*
-	 * Statement
+	 * Preprocessor name to value
 	 */
-	void stmt(void);
+	static word preproc_value(const std::string &name);
+
+	/*
+	 * Register string to value
+	 */
+	static word register_value(const std::string &str, bool addition);
 
 	/*
 	 * Set an operand in an instruction at a given position
@@ -104,6 +119,21 @@ private:
 	 * Set an operand in an instruction at a given position
 	 */
 	static bool set_oper_at_pos_helper(generic_instr **instr, word pos, word oper, word oper_type);
+
+	/*
+	 * Stack operation string to value
+	 */
+	static word stack_oper_value(const std::string &str);
+
+	/*
+	 * Statement
+	 */
+	void stmt(void);
+
+	/*
+	 * System register string to value
+	 */
+	static word system_register_value(const std::string &str);
 
 	/*
 	 * Terminal
@@ -173,29 +203,9 @@ public:
 	lexer &lex(void);
 
 	/*
-	 * Numeric string to value
-	 */
-	static word numeric_value(const std::string &str, bool hex);
-
-	/*
-	 * Opcode name to value
-	 */
-	static word op_value(const std::string &name);
-
-	/*
 	 * Parse input
 	 */
 	void parse(void);
-
-	/*
-	 * Preprocessor name to value
-	 */
-	static word preproc_value(const std::string &name);
-
-	/*
-	 * Register string to value
-	 */
-	static word register_value(const std::string &str, bool addition);
 
 	/*
 	 * Reset parser
@@ -206,16 +216,6 @@ public:
 	 * Return parser generated instructions size
 	 */
 	size_t size(void);
-
-	/*
-	 * Stack operation string to value
-	 */
-	static word stack_oper_value(const std::string &str);
-
-	/*
-	 * System register string to value
-	 */
-	static word system_register_value(const std::string &str);
 
 	/*
 	 * Writes generated code to file
